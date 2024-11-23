@@ -4,9 +4,9 @@ import time
 
 def setup_firebase():
     """Configura o Firebase."""
-    cred = credentials.Certificate("projetoiot-816bb-firebase-adminsdk-51dcx-17cd3df41b.json")  # Substitua pelo seu arquivo JSON
+    cred = credentials.Certificate("projetoiot-a3e86-firebase-adminsdk-457xf-1242e50f65.json")  # Substitua pelo seu arquivo JSON
     firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://projetoiot-816bb-default-rtdb.firebaseio.com/'  # Substitua pela URL do Firebase
+        'databaseURL': 'https://projetoiot-a3e86-default-rtdb.firebaseio.com/'  # Substitua pela URL do Firebase
     })
 
 def get_database_reference():
@@ -17,7 +17,6 @@ def add_example_data():
     """Adicionar dados de exemplo manualmente para testar."""
     ref = get_database_reference()
 
-    # Dados simulados no formato do seu sensor
     example_data = [
         {
             "bn": "BC33ACFFFEF41AD6",
@@ -49,4 +48,4 @@ def add_example_data():
 setup_firebase()
 
 # Adicionar dados de exemplo ao banco
-#add_example_data()
+add_example_data()
