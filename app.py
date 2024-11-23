@@ -4,9 +4,12 @@ import matplotlib.pyplot as plt
 import io
 import base64
 from firebase_setup import get_database_reference
+import multiprocessing
+import mqtt_handler  # Importa o arquivo mqtt_handler.py
 
 app = Flask(__name__)
 
+# Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
 def fetch_data_from_firebase():
     """Buscar dados do Firebase."""
@@ -28,6 +31,7 @@ def fetch_data_from_firebase():
 
     return jsonify(results)
 
+# Rota para gerar gráfico
 @app.route('/grafico', methods=['GET'])
 def plot_data():
     """Gerar um gráfico com os dados do Firebase."""
@@ -68,5 +72,14 @@ def plot_data():
 
     return f'<img src="data:image/png;base64,{plot_url}" />'
 
+# Função para rodar o MQTT em um processo separado
+def run_mqtt():
+    mqtt_handler.start_mqtt()
+
 if __name__ == '__main__':
+    # Iniciar MQTT em um processo separado
+    mqtt_process = multiprocessing.Process(target=run_mqtt)
+    mqtt_process.start()
+
+    # Rodar o Flask
     app.run(debug=True)
