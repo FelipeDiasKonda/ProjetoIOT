@@ -1,14 +1,15 @@
 import time
+import matplotlib
 from flask import Flask, jsonify
 import matplotlib.pyplot as plt
 import io
 import base64
 from firebase_setup import get_database_reference
 import multiprocessing
-import mqtt_handler  # Importa o arquivo mqtt_handler.py
-
+from multiprocessing import Process 
+import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
+from mqtt_handler import setup_mqtt
 app = Flask(__name__)
-
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
 def fetch_data_from_firebase():
@@ -74,12 +75,21 @@ def plot_data():
 
 # Função para rodar o MQTT em um processo separado
 def run_mqtt():
-    mqtt_handler.start_mqtt()
+    client = setup_mqtt()
+    client.loop_forever()
 
-if __name__ == '__main__':
-    # Iniciar MQTT em um processo separado
-    mqtt_process = multiprocessing.Process(target=run_mqtt)
+@app.route("/")
+def home():
+    return "Flask App está rodando!"
+
+if __name__ == "__main__":
+    matplotlib.use('Agg')
+    multiprocessing.set_start_method('spawn', force=True)
+    # Inicie o MQTT em um processo separado
+    mqtt_process = Process(target=run_mqtt)
     mqtt_process.start()
 
-    # Rodar o Flask
-    app.run(debug=True)
+    print("Processo MQTT iniciado:", mqtt_process.is_alive())
+
+    # Rode o Flask
+    app.run(debug=True, use_reloader=False)
