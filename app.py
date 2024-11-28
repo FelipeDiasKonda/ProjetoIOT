@@ -18,7 +18,7 @@ def index():
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
 def fetch_data_from_firebase():
-    """Buscar dados do Firebase."""
+    """Buscar dados do Firebase e gerar gráfico."""
     ref = get_database_reference()
     data = ref.get()
     if not data:
@@ -35,12 +35,34 @@ def fetch_data_from_firebase():
         for value in data.items() if value.get("sensor") == "temperature"
     ]
 
-    return jsonify(results)
+    if not results:
+        return jsonify({"message": "Nenhum dado de temperatura encontrado"}), 404
+
+    # Extrair timestamps e valores para o gráfico
+    timestamps = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(r["timestamp"])) for r in results]
+    values = [r["value"] for r in results]
+
+    # Gerar gráfico
+    fig, ax = plt.subplots()
+    ax.plot(timestamps, values, label="Temperatura", color='tab:blue')
+    ax.set_xlabel('Timestamp')
+    ax.set_ylabel('Temperatura (°C)')
+    ax.set_title('Gráfico de Temperatura')
+    ax.legend()
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    # Salvar gráfico em uma imagem base64 para o frontend
+    img_stream = io.BytesIO()
+    fig.savefig(img_stream, format='png')
+    img_stream.seek(0)
+    image_data = base64.b64encode(img_stream.getvalue()).decode('utf-8')
+
+    return render_template('index.html', image_data=image_data)
 
 # Rota para gerar gráfico
 @app.route('/grafico', methods=['GET'])
 def plot_data():
-    """Gerar um gráfico com os dados do Firebase."""
     ref = get_database_reference()
     data = ref.get()
     if not data:
@@ -48,22 +70,32 @@ def plot_data():
 
     # Extrair timestamps e valores
     timestamps, values = [], []
-    for value in data.items():
+    for key, value in data.items():
         if value.get("sensor") == "temperature":
-            timestamps.append(value.get("timestamp"))
-            values.append(value.get("value"))
+            timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(value.get("timestamp"))))
+            values.append(float(value.get("value")))
 
     if not values:
         return jsonify({"message": "Nenhum dado de temperatura disponível"}), 404
 
-    # Converter timestamps em formato legível
-    timestamps = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts)) for ts in timestamps]
+    # Criar o gráfico
+    plt.figure(figsize=(10, 5))
+    plt.plot(timestamps, values, marker='o', linestyle='-', color='b')
+    plt.xlabel('Timestamp')
+    plt.ylabel('Temperatura')
+    plt.title('Gráfico de Temperatura')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
 
-    # Retornar dados no formato JSON para o frontend
-    return jsonify({
-        "timestamps": timestamps,
-        "values": values
-    })
+    # Salvar o gráfico em um buffer de memória
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
+
+    # Retornar a imagem para o frontend
+    return render_template('index.html', image_data=image_base64)
 
 # Função para rodar o MQTT em um processo separado
 def run_mqtt():

@@ -70,4 +70,4 @@ if __name__ == '__main__':
         print("Cliente MQTT iniciado...")
         client.loop_forever()
     else:
-        print("Falha ao iniciar o cliente MQTT.")
+        print("Falha ao iniciar o cliente MQTT. Verifique o broker e a conexão de rede.")

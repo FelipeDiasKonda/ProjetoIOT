@@ -1,49 +1,80 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gráfico de Temperatura</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Temperaturas na PUC</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4a90e2;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+        }
+        button {
+            background-color: #4a90e2;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #357ab7;
+        }
+        img {
+            max-width: 100px;
+            margin-bottom: 20px;
+        }
+        .grafico {
+            margin-top: 30px;
+        }
+        .grafico img {
+            max-width: 90%;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <img
+            src="{{ url_for('static', filename='logo_puc.png') }}" 
+            alt="PUC Logo" 
+            style="width: 100px; height: auto;"
+        >
+        <h1>Temperaturas na PUC</h1>
+        <p>Confira a temperatura em tempo real e explore os dados coletados.</p>
+        <button onclick="window.location.href='/grafico'">Ver Gráficos de Temperatura</button>
+        <button onclick="window.location.href='/dados'">Ver Gráficos de Dados</button>
+    </div>
 
-    <h1>Gráfico de Temperatura</h1>
-    <div id="grafico"></div>
-
-    <script>
-        fetch('/grafico')
-            .then(response => response.json())
-            .then(data => {
-                if (data.timestamps && data.values) {
-                    var trace = {
-                        x: data.timestamps,
-                        y: data.values,
-                        type: 'scatter',
-                        mode: 'lines+markers',
-                        marker: {color: 'red'}
-                    };
-
-                    var layout = {
-                        title: 'Temperatura ao longo do tempo',
-                        xaxis: {
-                            title: 'Data e Hora',
-                            tickangle: -45
-                        },
-                        yaxis: {
-                            title: 'Temperatura (°C)'
-                        }
-                    };
-
-                    var graphData = [trace];
-
-                    Plotly.newPlot('grafico', graphData, layout);
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao carregar os dados:', error);
-            });
-    </script>
-
+    <!-- Exibe o gráfico de acordo com a rota -->
+    {% if image_data %}
+    <div class="grafico">
+        <h2>Gráfico de Temperatura</h2>
+        <img src="data:image/png;base64,{{ image_data }}" alt="Gráfico de Temperatura">
+    </div>
+    {% endif %}
 </body>
 </html>
