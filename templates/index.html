@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfico de Temperatura</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+    <h1>Gráfico de Temperatura</h1>
+    <div id="grafico"></div>
+
+    <script>
+        fetch('/grafico')
+            .then(response => response.json())
+            .then(data => {
+                if (data.timestamps && data.values) {
+                    var trace = {
+                        x: data.timestamps,
+                        y: data.values,
+                        type: 'scatter',
+                        mode: 'lines+markers',
+                        marker: {color: 'red'}
+                    };
+
+                    var layout = {
+                        title: 'Temperatura ao longo do tempo',
+                        xaxis: {
+                            title: 'Data e Hora',
+                            tickangle: -45
+                        },
+                        yaxis: {
+                            title: 'Temperatura (°C)'
+                        }
+                    };
+
+                    var graphData = [trace];
+
+                    Plotly.newPlot('grafico', graphData, layout);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao carregar os dados:', error);
+            });
+    </script>
+
+</body>
+</html>

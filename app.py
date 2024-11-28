@@ -1,6 +1,6 @@
 import time
 import matplotlib
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -10,6 +10,11 @@ from multiprocessing import Process
 import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
 from mqtt_handler import setup_mqtt
 app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
 def fetch_data_from_firebase():
@@ -27,7 +32,7 @@ def fetch_data_from_firebase():
             "unit": value.get("unit"),
             "timestamp": value.get("timestamp")
         }
-        for key, value in data.items() if value.get("sensor") == "temperature"
+        for value in data.items() if value.get("sensor") == "temperature"
     ]
 
     return jsonify(results)
@@ -43,7 +48,7 @@ def plot_data():
 
     # Extrair timestamps e valores
     timestamps, values = [], []
-    for key, value in data.items():
+    for value in data.items():
         if value.get("sensor") == "temperature":
             timestamps.append(value.get("timestamp"))
             values.append(value.get("value"))
@@ -54,33 +59,16 @@ def plot_data():
     # Converter timestamps em formato legível
     timestamps = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts)) for ts in timestamps]
 
-    # Criar gráfico
-    plt.figure(figsize=(10, 6))
-    plt.plot(timestamps, values, marker='o')
-    plt.title('Temperatura ao longo do tempo')
-    plt.xlabel('Horário')
-    plt.ylabel('Temperatura (°C)')
-    plt.xticks(rotation=45)
-    plt.grid(True)
-    plt.tight_layout()
-
-    # Salvar gráfico em memória e retornar como base64
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plot_url = base64.b64encode(img.getvalue()).decode()
-    plt.close()
-
-    return f'<img src="data:image/png;base64,{plot_url}" />'
+    # Retornar dados no formato JSON para o frontend
+    return jsonify({
+        "timestamps": timestamps,
+        "values": values
+    })
 
 # Função para rodar o MQTT em um processo separado
 def run_mqtt():
     client = setup_mqtt()
     client.loop_forever()
-
-@app.route("/")
-def home():
-    return "Flask App está rodando!"
 
 if __name__ == "__main__":
     matplotlib.use('Agg')
