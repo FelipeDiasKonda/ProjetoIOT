@@ -4,9 +4,9 @@ import time
 
 def setup_firebase():
     """Configura o Firebase."""
-    cred = credentials.Certificate("projetoiot-816bb-firebase-adminsdk-51dcx-17cd3df41b.json")  # Substitua pelo seu arquivo JSON
+    cred = credentials.Certificate("projetoiot-a3e86-firebase-adminsdk-457xf-3160f99ba1.json")  # Substitua pelo seu arquivo JSON
     firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://projetoiot-816bb-default-rtdb.firebaseio.com/'  # Substitua pela URL do Firebase
+        'databaseURL': 'https://projetoiot-a3e86-default-rtdb.firebaseio.com/'  # Substitua pela URL do Firebase
     })
 
 def get_database_reference():
@@ -22,28 +22,57 @@ def add_example_data():
         {
             "bn": "BC33ACFFFEF41AD6",
             "bt": int(time.time()),  # Timestamp atual
-            "n": "temperature",
-            "v": 24.5,  # Temperatura em °C
-            "u": "°C"
+            "n": "Cel",
+            "v": 22.5,  # Temperatura em °C
+            "u": "Cel"
         },
         {
             "bn": "BC33ACFFFEF41AD6",
             "bt": int(time.time()) + 10,
-            "n": "temperature",
-            "v": 25.0,  # Temperatura em °C
-            "u": "°C"
+            "n": "emw_rain_level",
+            "v": 0.12,  # Nível de chuva em metros
+            "u": "m"
         },
         {
             "bn": "BC33ACFFFEF41AD6",
             "bt": int(time.time()) + 20,
-            "n": "temperature",
-            "v": 24.7,  # Temperatura em °C
-            "u": "°C"
+            "n": "emw_average_wind_speed",
+            "v": 3.5,  # Velocidade média do vento em m/s
+            "u": "m/s"
+        },
+        {
+            "bn": "BC33ACFFFEF41AD6",
+            "bt": int(time.time()) + 30,
+            "n": "emw_wind_direction",
+            "v": 1.57,  # Direção do vento em radianos
+            "u": "rad"
+        },
+        {
+            "bn": "BC33ACFFFEF41AD6",
+            "bt": int(time.time()) + 40,
+            "n": "emw_humidity",
+            "v": 85.0,  # Umidade relativa em %
+            "u": "%RH"
+        },
+        {
+            "bn": "BC33ACFFFEF41AD6",
+            "bt": int(time.time()) + 50,
+            "n": "emw_uv",
+            "v": 3.2,  # Índice UV
+            "u": "/"
+        },
+        {
+            "bn": "BC33ACFFFEF41AD6",
+            "bt": int(time.time()) + 60,
+            "n": "emw_solar_radiation",
+            "v": 150.0,  # Radiação solar em W/m²
+            "u": "W/m2"
         }
     ]
 
     for data in example_data:
         ref.push(data)  # Inserir os dados no Firebase
+        print(f"Dado inserido no Firebase: {data}")
 
 # Inicializar o Firebase ao importar este módulo
 setup_firebase()

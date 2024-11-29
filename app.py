@@ -9,56 +9,90 @@ import multiprocessing
 from multiprocessing import Process 
 import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
 from mqtt_handler import setup_mqtt
+import joblib  # Para carregar o modelo
+import numpy as np 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
+modelo_previsao = joblib.load('modelo_previsao_chuva.joblib')
+@app.route('/prever', methods=['POST'])
+def prever_chuva():
+    """Rota para realizar a previsão de chuva."""
+    from flask import request
+
+    # Obter os dados enviados pelo frontend (como JSON ou formulário)
+    dados = request.json or request.form
+
+    try:
+        # Assumindo que os dados esperados são temperatura, umidade, e pressão
+        temperatura = float(dados.get("temperatura"))
+        umidade = float(dados.get("umidade"))
+        pressao = float(dados.get("pressao"))
+
+        # Transformar os dados no formato esperado pelo modelo
+        entrada_modelo = np.array([[temperatura, umidade, pressao]])
+
+        # Fazer a previsão
+        previsao = modelo_previsao.predict(entrada_modelo)
+
+        # Interpretar o resultado (supondo que 1 = chuva e 0 = sem chuva)
+        resultado = "Vai chover" if previsao[0] == 1 else "Não vai chover"
+
+        return jsonify({"resultado": resultado}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
-def fetch_data_from_firebase():
-    """Buscar dados do Firebase e gerar gráfico."""
+def fetch_all_graphs():
+    """Buscar dados do Firebase e gerar gráficos para todos os sensores."""
     ref = get_database_reference()
     data = ref.get()
+
     if not data:
         return jsonify({"message": "Nenhum dado encontrado"}), 404
 
-    # Filtrar apenas dados de temperatura
-    results = [
-        {
-            "sensor": value.get("sensor"),
-            "value": value.get("value"),
-            "unit": value.get("unit"),
-            "timestamp": value.get("timestamp")
-        }
-        for  key,value in data.items() if value.get("sensor") == "temperature"
-    ]
+    # Organizar os dados por tipo de sensor
+    sensor_data = {}
+    for key, value in data.items():
+        sensor = value.get("n")
+        if sensor not in sensor_data:
+            sensor_data[sensor] = []
+        sensor_data[sensor].append({
+            "timestamp": value.get("bt"),
+            "value": value.get("v"),
+            "unit": value.get("u")
+        })
 
-    if not results:
-        return jsonify({"message": "Nenhum dado de temperatura encontrado"}), 404
+    # Gerar gráficos para cada sensor
+    graphs = {}
+    for sensor, values in sensor_data.items():
+        timestamps = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v["timestamp"])) for v in values]
+        sensor_values = [v["value"] for v in values]
+        unit = values[0]["unit"]
 
-    # Extrair timestamps e valores para o gráfico
-    timestamps = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(r["timestamp"])) for r in results]
-    values = [r["value"] for r in results]
+        # Criar gráfico
+        fig, ax = plt.subplots()
+        ax.plot(timestamps, sensor_values, marker='o', label=sensor, color='tab:blue')
+        ax.set_xlabel('Timestamp')
+        ax.set_ylabel(f'{sensor} ({unit})')
+        ax.set_title(f'Gráfico de {sensor}')
+        ax.legend()
+        plt.xticks(rotation=45)
+        plt.tight_layout()
 
-    # Gerar gráfico
-    fig, ax = plt.subplots()
-    ax.plot(timestamps, values, label="Temperatura", color='tab:blue')
-    ax.set_xlabel('Timestamp')
-    ax.set_ylabel('Temperatura (°C)')
-    ax.set_title('Gráfico de Temperatura')
-    ax.legend()
-    plt.xticks(rotation=45)
-    plt.tight_layout()
+        # Converter gráfico para base64
+        img_stream = io.BytesIO()
+        fig.savefig(img_stream, format='png')
+        img_stream.seek(0)
+        graphs[sensor] = base64.b64encode(img_stream.getvalue()).decode('utf-8')
 
-    # Salvar gráfico em uma imagem base64 para o frontend
-    img_stream = io.BytesIO()
-    fig.savefig(img_stream, format='png')
-    img_stream.seek(0)
-    image_data = base64.b64encode(img_stream.getvalue()).decode('utf-8')
+    return render_template('dashboard.html', graphs=graphs)
 
-    return render_template('index.html', image_data=image_data)
     
 # Rota para gerar gráfico
 @app.route('/temperatura', methods=['GET'])
@@ -71,9 +105,12 @@ def plot_data():
     # Extrair timestamps e valores
     timestamps, values = [], []
     for key, value in data.items():
-        if value.get("sensor") == "temperature":
-            timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(value.get("timestamp"))))
-            values.append(float(value.get("value")))
+        if value.get("n") == "Cel":
+            timestamp = value.get("bt")
+            temp_value = value.get("v")
+        if timestamp and temp_value is not None:  # Validar se ambos existem
+            timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+            values.append(float(temp_value))
 
     if not values:
         return jsonify({"message": "Nenhum dado de temperatura disponivel"}), 404

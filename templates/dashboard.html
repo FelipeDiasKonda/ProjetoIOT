@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUC - Dashboard</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #9ad0f5, #b1e0ff);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+        h1 {
+            text-align: center;
+            color: #3081d0;
+        }
+        .graph-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .graph-item {
+            width: 48%;
+            margin-bottom: 20px;
+        }
+        .graph-item img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 768px) {
+            .graph-item {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dashboard de Sensores</h1>
+        <div class="graph-container">
+            {% for sensor, image_data in graphs.items() %}
+            <div class="graph-item">
+                <h3>{{ sensor }}</h3>
+                <img src="data:image/png;base64,{{ image_data }}" alt="Gráfico de {{ sensor }}">
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

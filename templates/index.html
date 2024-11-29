@@ -7,53 +7,51 @@
     <link rel="icon" href="{{ url_for('static', filename='loguinho.png') }}" type="image/png">  
     <style>
         body {
-                font-family: 'Roboto', sans-serif;
-                background: linear-gradient(135deg, #9ad0f5, #b1e0ff); /* Cores do background */
-                color: #333;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                padding-top: 20px; /* Para evitar que o conteúdo fique atrás da barra de navegação */
-                height: 100vh;
-                margin-top: 20px;
-                margin: 0;
-                overflow-y: scroll;
-            }
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #9ad0f5, #b1e0ff); /* Cores do background */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding-top: 20px;
+            height: 100vh;
+            margin: 0;
+            overflow-y: scroll;
+        }
 
         .container {
-                text-align: center;
-                background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 248, 255, 0.95)); 
-                padding: 40px;
-                border-radius: 15px;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-                max-width: 1000px;
-                min-height: 20vh;
-                width: 90%;
-                animation: fadeIn 1.2s ease-in-out;
-                margin-top: 30px;
-            }
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 248, 255, 0.95)); 
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 1000px;
+            min-height: 20vh;
+            width: 90%;
+            animation: fadeIn 1.2s ease-in-out;
+            margin-top: 30px;
+        }
 
         .container img {
-            display: flex;
+            display: block;
             opacity: 1;
             transition: none;
             max-width: 100px;
             height: auto;
-            margin-bottom: 20px;
-            margin-top: 100px;
-            }
+            margin: 0 auto 20px;
+        }
 
         h1 {
             color: #3081d0;  
             font-size: 2.5em;
             margin-bottom: 15px;
             font-weight: 700;
-            }
+        }
 
         p {
             font-size: 1.3em;
             margin-bottom: 25px;
-            }
+        }
 
         button {
             background: linear-gradient(135deg, #ff8e72, #ff5f6d);
@@ -66,20 +64,19 @@
             transition: transform 0.3s, box-shadow 0.3s;
             margin: 10px;
             text-transform: uppercase;
-            }
+        }
 
         button:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 15px rgba(74, 144, 226, 0.4);
-            }
-
+        }
 
         .dados-container {
             display: flex;
             justify-content: space-between;
             margin-top: 30px;
             flex-wrap: wrap;
-            }
+        }
 
         .dados-item {
             background: linear-gradient(135deg, #ffffff, #f0f8ff);
@@ -90,11 +87,11 @@
             margin: 10px 0;
             text-align: center;
             transition: transform 0.3s;
-            }
+        }
 
         .dados-item:hover {
             transform: scale(1.05);
-            }
+        }
 
         .dados-item h3 {
             font-size: 1.4em;
@@ -107,7 +104,7 @@
             border-radius: 10px;
             margin-top: 20px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            }
+        }
 
         table {
             width: 100%;
@@ -116,24 +113,24 @@
             background-color: #ffffff;
             border-radius: 12px;
             overflow: hidden;
-            }
+        }
 
         table th, table td {
             padding: 12px 15px;
             text-align: center;
             border-bottom: 1px solid #ddd;
-            }
+        }
 
         table th {
             background-color: #ff5f6d;
             color: white;
             text-transform: uppercase;
             font-weight: bold;
-            }
+        }
 
         table tr:hover {
             background-color: #f1f1f1;
-            }
+        }
 
         @keyframes fadeIn {
             from {
@@ -144,16 +141,27 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-            }
+        }
 
+        .footer {
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .footer a {
+            color: #3081d0;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <img
-            src="{{ url_for('static', filename='logo_puc.png') }}" 
-            alt="PUC Logo" 
-        >
+        <img src="{{ url_for('static', filename='logo_puc.png') }}" alt="PUC Logo">
         <h1>Temperaturas na PUC</h1>
         <p>Confira a temperatura em tempo real e explore os dados coletados.</p>
         <button onclick="window.location.href='/temperatura'">Ver Gráficos de Temperatura</button>
@@ -191,7 +199,6 @@
         <p>Nenhum dado de gráfico disponível.</p>
         {% endif %}
 
-
         <!-- Exibe o histórico de dados em uma tabela -->
         <div class="dados-tabela">
             <h3>Histórico de Temperaturas</h3>
@@ -211,6 +218,11 @@
                     {% endfor %}
                 </tbody>
             </table>
+        </div>
+
+        <!-- Rodapé -->
+        <div class="footer">
+            <p>Desenvolvido por <a href="https://www.puc.com.br" target="_blank">PUC</a>. Todos os direitos reservados.</p>
         </div>
     </div>
 </body>
