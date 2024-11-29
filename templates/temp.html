@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PUC Clima</title>
+    <link rel="icon" href="{{ url_for('static', filename='clima.png') }}" type="image/png">
+
+    <style>
+        /* RESET DE ESTILOS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1f2a44, #4e6e88);
+            color: #fff;
+            margin: 0;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* CABEÇALHO FIXO */
+        header {
+            background: rgba(20, 27, 43, 0.85);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        header h1 {
+            color: #02d7fd;
+            font-size: 3em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0;
+            text-align: center;
+        }
+
+        /* Botão de voltar */
+        .back-btn {
+            background-color: #02d7fd;
+            color: #fff;
+            font-size: 1.2em;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            position: absolute;
+            left: 20px;
+        }
+
+        .back-btn:hover {
+            background-color: #0199c1;
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        .container {
+            margin-top: 120px;
+            padding: 40px;
+            background: rgba(20, 27, 43, 0.85);
+            border-radius: 30px;
+            width: 90%;
+            max-width: 1300px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            animation: fadeIn 1s ease-out;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .dados-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .dados-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .dados-item h3 {
+            color: #ffd700;
+            font-size: 1.6em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .dados-item p {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #02d7fd;
+        }
+
+        .dados-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* TABELA DE HISTÓRICO */
+        .dados-tabela {
+            margin-top: 40px;
+        }
+
+        .dados-tabela table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .dados-tabela th, .dados-tabela td {
+            text-align: center;
+            padding: 15px;
+            color: #fff;
+        }
+
+        .dados-tabela th {
+            background: rgba(20, 27, 43, 0.9);
+            color: #ffd700;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .dados-tabela tr:nth-child(even) {
+            background: rgba(20, 27, 43, 0.7);
+        }
+
+        /* ANIMAÇÃO */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <a href="/" class="back-btn">Voltar</a>
+        <div class="header-content">
+            <h2>Temperaturas PUC</h2>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="dados-container">
+            <div class="dados-item">
+                <h3>Última Temperatura</h3>
+                <p>{{ last_temperature }} °C</p>
+            </div>
+            <div class="dados-item">
+                <h3>Temperatura Média</h3>
+                <p>{{ average_temperature }} °C</p>
+            </div>
+            <div class="dados-item">
+                <h3>Temperatura Máxima</h3>
+                <p>{{ max_temperature }} °C</p>
+            </div>
+            <div class="dados-item">
+                <h3>Temperatura Mínima</h3>
+                <p>{{ min_temperature }} °C</p>
+            </div>
+        </div>
+
+        {% if image_data %}
+        <div class="grafico">
+            <h2 style="text-align: center; color: #ffd700; margin: 40px 0;">Gráfico de Temperaturas</h2>
+            <img src="data:image/png;base64,{{ image_data }}" alt="Gráfico de Temperatura" style="width: 100%; border-radius: 20px; box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);">
+        </div>
+        {% endif %}
+
+        <div class="dados-tabela">
+            <h3 style="text-align: center; color: #ffd700; margin-bottom: 20px;">Histórico de Temperaturas</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Temperatura (°C)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in temperature_data %}
+                    <tr>
+                        <td>{{ data.timestamp }}</td>
+                        <td>{{ data.value }} °C</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
