@@ -9,43 +9,12 @@ import multiprocessing
 from multiprocessing import Process 
 import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
 from mqtt_handler import setup_mqtt
-import joblib  # Para carregar o modelo
-import numpy as np 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-modelo_previsao = joblib.load('modelo_previsao_chuva.joblib')
-@app.route('/prever', methods=['POST'])
-def prever_chuva():
-    """Rota para realizar a previsão de chuva."""
-    from flask import request
-
-    # Obter os dados enviados pelo frontend (como JSON ou formulário)
-    dados = request.json or request.form
-
-    try:
-        # Assumindo que os dados esperados são temperatura, umidade, e pressão
-        temperatura = float(dados.get("temperatura"))
-        umidade = float(dados.get("umidade"))
-        pressao = float(dados.get("pressao"))
-
-        # Transformar os dados no formato esperado pelo modelo
-        entrada_modelo = np.array([[temperatura, umidade, pressao]])
-
-        # Fazer a previsão
-        previsao = modelo_previsao.predict(entrada_modelo)
-
-        # Interpretar o resultado (supondo que 1 = chuva e 0 = sem chuva)
-        resultado = "Vai chover" if previsao[0] == 1 else "Não vai chover"
-
-        return jsonify({"resultado": resultado}), 200
-
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-    
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
 def fetch_all_graphs():
