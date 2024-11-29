@@ -32,7 +32,7 @@ def fetch_data_from_firebase():
             "unit": value.get("unit"),
             "timestamp": value.get("timestamp")
         }
-        for value in data.items() if value.get("sensor") == "temperature"
+        for  key,value in data.items() if value.get("sensor") == "temperature"
     ]
 
     if not results:
@@ -59,9 +59,9 @@ def fetch_data_from_firebase():
     image_data = base64.b64encode(img_stream.getvalue()).decode('utf-8')
 
     return render_template('index.html', image_data=image_data)
-
+    
 # Rota para gerar gráfico
-@app.route('/grafico', methods=['GET'])
+@app.route('/temperatura', methods=['GET'])
 def plot_data():
     ref = get_database_reference()
     data = ref.get()
@@ -76,7 +76,13 @@ def plot_data():
             values.append(float(value.get("value")))
 
     if not values:
-        return jsonify({"message": "Nenhum dado de temperatura disponível"}), 404
+        return jsonify({"message": "Nenhum dado de temperatura disponivel"}), 404
+
+    # Calcular últimas temperaturas, média, máximo e mínimo
+    last_temperature = values[-1]
+    average_temperature = sum(values) / len(values)
+    max_temperature = max(values)
+    min_temperature = min(values)
 
     # Criar o gráfico
     plt.figure(figsize=(10, 5))
@@ -94,13 +100,25 @@ def plot_data():
     image_base64 = base64.b64encode(buf.read()).decode('utf-8')
     buf.close()
 
-    # Retornar a imagem para o frontend
-    return render_template('index.html', image_data=image_base64)
+    # Preparar os dados para exibir no template
+    temperature_data = [{"timestamp": ts, "value": val} for ts, val in zip(timestamps, values)]
+
+    # Retornar a imagem e dados para o frontend
+    return render_template('index.html', 
+                           image_data=image_base64, 
+                           last_temperature=last_temperature,
+                           average_temperature=average_temperature,
+                           max_temperature=max_temperature,
+                           min_temperature=min_temperature,
+                           temperature_data=temperature_data)
 
 # Função para rodar o MQTT em um processo separado
 def run_mqtt():
     client = setup_mqtt()
-    client.loop_forever()
+    if client:
+        client.loop_forever()
+    else:
+        print("Erro: Cliente MQTT não foi inicializado corretamente.")
 
 if __name__ == "__main__":
     matplotlib.use('Agg')
