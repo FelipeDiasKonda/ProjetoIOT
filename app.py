@@ -1,6 +1,6 @@
 import time
 import matplotlib
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 import matplotlib.pyplot as plt
 import io
 import base64
@@ -10,32 +10,62 @@ from multiprocessing import Process
 import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
 from mqtt_handler import setup_mqtt
 app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
-def fetch_data_from_firebase():
-    """Buscar dados do Firebase."""
+def fetch_all_graphs():
+    """Buscar dados do Firebase e gerar gráficos para todos os sensores."""
     ref = get_database_reference()
     data = ref.get()
+
     if not data:
         return jsonify({"message": "Nenhum dado encontrado"}), 404
 
-    # Filtrar apenas dados de temperatura
-    results = [
-        {
-            "sensor": value.get("sensor"),
-            "value": value.get("value"),
-            "unit": value.get("unit"),
-            "timestamp": value.get("timestamp")
-        }
-        for key, value in data.items() if value.get("sensor") == "temperature"
-    ]
+    # Organizar os dados por tipo de sensor
+    sensor_data = {}
+    for key, value in data.items():
+        sensor = value.get("n")
+        if sensor not in sensor_data:
+            sensor_data[sensor] = []
+        sensor_data[sensor].append({
+            "timestamp": value.get("bt"),
+            "value": value.get("v"),
+            "unit": value.get("u")
+        })
 
-    return jsonify(results)
+    # Gerar gráficos para cada sensor
+    graphs = {}
+    for sensor, values in sensor_data.items():
+        timestamps = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v["timestamp"])) for v in values]
+        sensor_values = [v["value"] for v in values]
+        unit = values[0]["unit"]
 
+        # Criar gráfico
+        fig, ax = plt.subplots()
+        ax.plot(timestamps, sensor_values, marker='o', label=sensor, color='tab:blue')
+        ax.set_xlabel('Timestamp')
+        ax.set_ylabel(f'{sensor} ({unit})')
+        ax.set_title(f'Gráfico de {sensor}')
+        ax.legend()
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+
+        # Converter gráfico para base64
+        img_stream = io.BytesIO()
+        fig.savefig(img_stream, format='png')
+        img_stream.seek(0)
+        graphs[sensor] = base64.b64encode(img_stream.getvalue()).decode('utf-8')
+
+    return render_template('dashboard.html', graphs=graphs)
+
+    
 # Rota para gerar gráfico
-@app.route('/grafico', methods=['GET'])
+@app.route('/temperatura', methods=['GET'])
 def plot_data():
-    """Gerar um gráfico com os dados do Firebase."""
     ref = get_database_reference()
     data = ref.get()
     if not data:
@@ -44,43 +74,57 @@ def plot_data():
     # Extrair timestamps e valores
     timestamps, values = [], []
     for key, value in data.items():
-        if value.get("sensor") == "temperature":
-            timestamps.append(value.get("timestamp"))
-            values.append(value.get("value"))
+        if value.get("n") == "Cel":
+            timestamp = value.get("bt")
+            temp_value = value.get("v")
+        if timestamp and temp_value is not None:  # Validar se ambos existem
+            timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+            values.append(float(temp_value))
 
     if not values:
-        return jsonify({"message": "Nenhum dado de temperatura disponível"}), 404
+        return jsonify({"message": "Nenhum dado de temperatura disponivel"}), 404
 
-    # Converter timestamps em formato legível
-    timestamps = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts)) for ts in timestamps]
+    # Calcular últimas temperaturas, média, máximo e mínimo
+    last_temperature = values[-1]
+    average_temperature = sum(values) / len(values)
+    max_temperature = max(values)
+    min_temperature = min(values)
 
-    # Criar gráfico
-    plt.figure(figsize=(10, 6))
-    plt.plot(timestamps, values, marker='o')
-    plt.title('Temperatura ao longo do tempo')
-    plt.xlabel('Horário')
-    plt.ylabel('Temperatura (°C)')
+    # Criar o gráfico
+    plt.figure(figsize=(10, 5))
+    plt.plot(timestamps, values, marker='o', linestyle='-', color='b')
+    plt.xlabel('Timestamp')
+    plt.ylabel('Temperatura')
+    plt.title('Gráfico de Temperatura')
     plt.xticks(rotation=45)
-    plt.grid(True)
     plt.tight_layout()
 
-    # Salvar gráfico em memória e retornar como base64
-    img = io.BytesIO()
-    plt.savefig(img, format='png')
-    img.seek(0)
-    plot_url = base64.b64encode(img.getvalue()).decode()
-    plt.close()
+    # Salvar o gráfico em um buffer de memória
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
+    buf.close()
 
-    return f'<img src="data:image/png;base64,{plot_url}" />'
+    # Preparar os dados para exibir no template
+    temperature_data = [{"timestamp": ts, "value": val} for ts, val in zip(timestamps, values)]
+
+    # Retornar a imagem e dados para o frontend
+    return render_template('index.html', 
+                           image_data=image_base64, 
+                           last_temperature=last_temperature,
+                           average_temperature=average_temperature,
+                           max_temperature=max_temperature,
+                           min_temperature=min_temperature,
+                           temperature_data=temperature_data)
 
 # Função para rodar o MQTT em um processo separado
 def run_mqtt():
     client = setup_mqtt()
-    client.loop_forever()
-
-@app.route("/")
-def home():
-    return "Flask App está rodando!"
+    if client:
+        client.loop_forever()
+    else:
+        print("Erro: Cliente MQTT não foi inicializado corretamente.")
 
 if __name__ == "__main__":
     matplotlib.use('Agg')

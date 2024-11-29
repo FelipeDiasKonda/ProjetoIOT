@@ -29,18 +29,35 @@ def on_message(client, userdata, msg):
 
         # Verificar se o payload é uma lista
         if isinstance(payload, list):
+            # Inicializar estrutura para dados selecionados
+            data_to_save = {}
+
             # Processar cada item na lista
             for item in payload:
-                # Verificar se o dado refere-se à temperatura (unidade Cel)
-                if item.get("u") == "Cel" and "v" in item:
-                    data = {
-                        "sensor": "temperature",  # Nome fixo para o tipo de dado
-                        "value": item["v"],       # Valor da temperatura
-                        "unit": item["u"],        # Unidade (Cel)
-                        "timestamp": time.time()  # Timestamp atual
-                    }
-                    send_to_firebase(data)
-                    break  # Processar apenas o primeiro dado de temperatura encontrado
+                label = item.get("n")
+                value = item.get("v")
+                unit = item.get("u")
+
+                # Verificar e armazenar as labels desejadas
+                if label == "emw_rain_level":
+                    data_to_save["rain_level"] = {"value": value, "unit": unit}
+                elif label == "emw_average_wind_speed":
+                    data_to_save["average_wind_speed"] = {"value": value, "unit": unit}
+                elif label == "emw_wind_direction":
+                    data_to_save["wind_direction"] = {"value": value, "unit": unit}
+                elif label == "emw_humidity":
+                    data_to_save["humidity"] = {"value": value, "unit": unit}
+                elif label == "emw_uv":
+                    data_to_save["uv_index"] = {"value": value, "unit": unit}
+                elif label == "emw_solar_radiation":
+                    data_to_save["solar_radiation"] = {"value": value, "unit": unit}
+                elif unit == "Cel":
+                    data_to_save["temperature"] = {"value": value, "unit": unit}
+
+            # Verificar se há dados para salvar
+            if data_to_save:
+                data_to_save["timestamp"] = time.time()
+                send_to_firebase(data_to_save)
         else:
             # Adicione aqui um debug para entender o formato do payload
             print("Payload recebido não é uma lista. Conteúdo:", payload)
@@ -56,6 +73,7 @@ def setup_mqtt():
     client.on_message = on_message
 
     try:
+        print("Tentando conectar ao broker MQTT...")
         client.connect("192.168.1.104", 1883, 10)  # Substitua pelo endereço do broker
     except Exception as e:
         print(f"Erro ao conectar ao broker MQTT: {e}")
@@ -69,4 +87,4 @@ if __name__ == '__main__':
         print("Cliente MQTT iniciado...")
         client.loop_forever()
     else:
-        print("Falha ao iniciar o cliente MQTT.")
+        print("Falha ao iniciar o cliente MQTT. Verifique o broker e a conexão de rede.")
