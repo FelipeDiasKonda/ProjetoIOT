@@ -3,46 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PUC Temperatura</title>
-    <link rel="icon" href="{{ url_for('static', filename='loguinho.png') }}" type="image/png">  
+    <title>PUC Clima</title>
+    <link rel="icon" href="{{ url_for('static', filename='clima.png') }}" type="image/png">
     <style>
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #9ad0f5, #b1e0ff); /* Cores do background */
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding-top: 20px;
-            height: 100vh;
+        /* RESET DE ESTILOS */
+        * {
             margin: 0;
-            overflow-y: scroll;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .container {
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1f2a44, #4e6e88);
+            color: #fff;
+            margin: 0;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* CABEÇALHO FIXO */
+        header {
+            background: rgba(20, 27, 43, 0.85);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+
+        header h1 {
+            color: #02d7fd;
+            font-size: 3em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0;
             text-align: center;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 248, 255, 0.95)); 
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        .container {
+            margin-top: 120px;
             padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            max-width: 1000px;
-            min-height: 20vh;
-            width: 90%;
-            animation: fadeIn 1.2s ease-in-out;
-            margin-top: 30px;
+            background: rgba(20, 27, 43, 0.85);
+            border-radius: 30px;
+            width: 60%; /* Menor largura */
+            height: 500px; /* Maior altura */
+            max-width: 1300px;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(20px);
+            animation: fadeIn 1s ease-out;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Centraliza os botões na vertical */
+            align-items: center; /* Centraliza os botões na horizontal */
         }
 
         .container img {
             display: block;
-            opacity: 1;
-            transition: none;
-            max-width: 100px;
-            height: auto;
-            margin: 0 auto 20px;
+            margin: 0 auto;
+            max-width: 120px;
+            margin-bottom: 10px;
         }
 
         h1 {
-            color: #3081d0;  
+            color: #ffd700;
             font-size: 2.5em;
             margin-bottom: 15px;
             font-weight: 700;
@@ -54,7 +93,7 @@
         }
 
         button {
-            background: linear-gradient(135deg, #ff8e72, #ff5f6d);
+            background: linear-gradient(135deg, #5a6dbf, #6a85b6);
             color: white;
             padding: 15px 30px;
             border: none;
@@ -64,6 +103,7 @@
             transition: transform 0.3s, box-shadow 0.3s;
             margin: 10px;
             text-transform: uppercase;
+            width: 80%; /* Botões ocupam mais largura */
         }
 
         button:hover {
@@ -71,78 +111,7 @@
             box-shadow: 0 8px 15px rgba(74, 144, 226, 0.4);
         }
 
-        .dados-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .dados-item {
-            background: linear-gradient(135deg, #ffffff, #f0f8ff);
-            border-radius: 12px;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            width: 45%;
-            margin: 10px 0;
-            text-align: center;
-            transition: transform 0.3s;
-        }
-
-        .dados-item:hover {
-            transform: scale(1.05);
-        }
-
-        .dados-item h3 {
-            font-size: 1.4em;
-            margin-bottom: 10px;
-            color: #3081d0;
-        }
-
-        .grafico img {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 20px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 30px;
-            background-color: #ffffff;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        table th, table td {
-            padding: 12px 15px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
-
-        table th {
-            background-color: #ff5f6d;
-            color: white;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-
-        table tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
+        /* Rodapé */
         .footer {
             margin-top: 40px;
             font-size: 0.9em;
@@ -150,78 +119,40 @@
         }
 
         .footer a {
-            color: #3081d0;
+            color: #5a6dbf;
             text-decoration: none;
         }
 
         .footer a:hover {
             text-decoration: underline;
         }
+
+        /* ANIMAÇÃO */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
     </style>
 </head>
 <body>
+
+
     <div class="container">
-        <img src="{{ url_for('static', filename='logo_puc.png') }}" alt="PUC Logo">
-        <h1>Temperaturas na PUC</h1>
-        <p>Confira a temperatura em tempo real e explore os dados coletados.</p>
-        <button onclick="window.location.href='/temperatura'">Ver Gráficos de Temperatura</button>
-        <button onclick="window.location.href='/dados'">Ver Gráficos de Dados</button>
-        
-        <!-- Exibe as informações do dashboard -->
-        <div class="dados-container">
-            <div class="dados-item">
-                <h3>Última Temperatura</h3>
-                <p>{{ last_temperature }} °C</p>
-            </div>
-            <div class="dados-item">
-                <h3>Temperatura Média</h3>
-                <p>{{ average_temperature }} °C</p>
-            </div>
-            <div class="dados-item">
-                <h3>Temperatura Máxima</h3>
-                <p>{{ max_temperature }} °C</p>
-            </div>
-            <div class="dados-item">
-                <h3>Temperatura Mínima</h3>
-                <p>{{ min_temperature }} °C</p>
-            </div>
-        </div>
-
-        <!-- Exibe o gráfico -->
-        {% if image_data %}
-        <div class="grafico">
-            <h2>Gráfico de Temperatura</h2>
-            <img src="data:image/png;base64,{{ image_data }}" alt="Gráfico de Temperatura">
-        </div>
-        {% endif %}
-
-        {% if not image_data %}
-        <p>Nenhum dado de gráfico disponível.</p>
-        {% endif %}
-
-        <!-- Exibe o histórico de dados em uma tabela -->
-        <div class="dados-tabela">
-            <h3>Histórico de Temperaturas</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Temperatura (°C)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in temperature_data %}
-                    <tr>
-                        <td>{{ data.timestamp }}</td>
-                        <td>{{ data.value }} °C</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <img src="{{ url_for('static', filename='logo_puc.png') }}" alt="PUC Logo" width="150">
+        <h1>Bem-vindo ao PUC Clima</h1>
+        <p>Escolha uma das opções abaixo para acessar os dados:</p>
+        <button onclick="window.location.href='/temperatura'">Conferir temperatura atual</button>
+        <button onclick="window.location.href='/dados'">Conferir gráficos de clima</button>
         <!-- Rodapé -->
         <div class="footer">
-            <p>Desenvolvido por <a href="https://www.puc.com.br" target="_blank">PUC</a>. Todos os direitos reservados.</p>
+            <p>Desenvolvido por alunos da <a href="https://www.puc-campinas.edu.br/" target="_blank">PUC</a>. Todos os direitos reservados.</p>
         </div>
     </div>
 </body>

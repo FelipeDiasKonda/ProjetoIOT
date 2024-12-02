@@ -28,21 +28,37 @@ def fetch_all_graphs():
     # Organizar os dados por tipo de sensor
     sensor_data = {}
     for key, value in data.items():
-        sensor = value.get("n")
-        if sensor not in sensor_data:
-            sensor_data[sensor] = []
-        sensor_data[sensor].append({
-            "timestamp": value.get("bt"),
-            "value": value.get("v"),
-            "unit": value.get("u")
-        })
+        # Acessar o tipo de sensor diretamente pelas chaves específicas
+        for sensor_key in ['temperature', 'humidity', 'rain_level', 'solar_radiation', 'uv_index', 'wind_direction', 'wind_speed']:
+            sensor_value = value.get(sensor_key)
+            timestamp = value.get('timestamp')
+
+            # Verificar se o valor do sensor e o timestamp existem
+            if sensor_value is not None and timestamp:
+                # Se o sensor_value for um dicionário, tente acessar o valor correto
+                if isinstance(sensor_value, dict):
+                    sensor_value = sensor_value.get('value')
+
+                # Se não tiver dados para esse sensor, inicializa
+                if sensor_key not in sensor_data:
+                    sensor_data[sensor_key] = {"timestamps": [], "values": [], "unit": value.get('u', 'Unidade não definida')}
+
+                # Adicionar os dados
+                sensor_data[sensor_key]["timestamps"].append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+                try:
+                    sensor_data[sensor_key]["values"].append(float(sensor_value))  # Tentar converter para float
+                except ValueError:
+                    continue  # Se não conseguir converter, simplesmente ignore
+
+    if not sensor_data:
+        return jsonify({"message": "Nenhum dado de sensores encontrado"}), 404
 
     # Gerar gráficos para cada sensor
     graphs = {}
-    for sensor, values in sensor_data.items():
-        timestamps = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v["timestamp"])) for v in values]
-        sensor_values = [v["value"] for v in values]
-        unit = values[0]["unit"]
+    for sensor, data in sensor_data.items():
+        timestamps = data["timestamps"]
+        sensor_values = data["values"]
+        unit = data["unit"]
 
         # Criar gráfico
         fig, ax = plt.subplots()
@@ -62,6 +78,7 @@ def fetch_all_graphs():
 
     return render_template('dashboard.html', graphs=graphs)
 
+
     
 # Rota para gerar gráfico
 @app.route('/temperatura', methods=['GET'])
@@ -74,15 +91,22 @@ def plot_data():
     # Extrair timestamps e valores
     timestamps, values = [], []
     for key, value in data.items():
-        if value.get("n") == "Cel":
-            timestamp = value.get("bt")
-            temp_value = value.get("v")
-        if timestamp and temp_value is not None:  # Validar se ambos existem
-            timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
-            values.append(float(temp_value))
+        # Acessar a chave "temperature" que está dentro de cada item
+        temperature_data = value.get("temperature", {})
+        timestamp = value.get("timestamp")
+        
+        # Verificar se a chave "temperature" existe
+        if temperature_data:
+            temp_value = temperature_data.get("value")
+            
+            # Verificar se os dados de timestamp e valor de temperatura existem
+            if timestamp and temp_value is not None:
+                # Adicionar o timestamp formatado e o valor da temperatura
+                timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+                values.append(float(temp_value))
 
     if not values:
-        return jsonify({"message": "Nenhum dado de temperatura disponivel"}), 404
+        return jsonify({"message": "Nenhum dado de temperatura disponível"}), 404
 
     # Calcular últimas temperaturas, média, máximo e mínimo
     last_temperature = values[-1]
@@ -110,7 +134,7 @@ def plot_data():
     temperature_data = [{"timestamp": ts, "value": val} for ts, val in zip(timestamps, values)]
 
     # Retornar a imagem e dados para o frontend
-    return render_template('index.html', 
+    return render_template('temp.html', 
                            image_data=image_base64, 
                            last_temperature=last_temperature,
                            average_temperature=average_temperature,
