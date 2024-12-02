@@ -16,7 +16,7 @@ def on_connect(client, userdata, flags, rc):
     """Callback chamada ao conectar ao broker MQTT."""
     if rc == 0:
         print("Conexão bem-sucedida ao broker MQTT!")
-        client.subscribe("TESTE")  # Substitua pelo tópico correto
+        client.subscribe("konda")  # Substitua pelo tópico correto
     else:
         print(f"Falha na conexão ao broker MQTT. Código de retorno: {rc}")
 

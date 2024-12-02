@@ -1,16 +1,14 @@
 import time
 import matplotlib
-matplotlib.use('Agg')  # Configurar backend antes de importar pyplot
+from flask import Flask, jsonify, render_template
 import matplotlib.pyplot as plt
 import io
 import base64
-from flask import Flask, jsonify, render_template
 from firebase_setup import get_database_reference
 import multiprocessing
 from multiprocessing import Process 
-import mqtt_handler  # Importa o arquivo mqtt_handler.py
+import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
 from mqtt_handler import setup_mqtt
-
 app = Flask(__name__)
 
 @app.route('/')
@@ -20,6 +18,7 @@ def index():
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
 def fetch_all_graphs():
+    """Buscar dados do Firebase e gerar gráficos para todos os sensores."""
     ref = get_database_reference()
     data = ref.get()
 
@@ -30,14 +29,12 @@ def fetch_all_graphs():
     sensor_data = {}
     for key, value in data.items():
         sensor = value.get("n")
-        if not sensor or "bt" not in value or "v" not in value:  # Validação adicional
-            continue
         if sensor not in sensor_data:
             sensor_data[sensor] = []
         sensor_data[sensor].append({
             "timestamp": value.get("bt"),
             "value": value.get("v"),
-            "unit": value.get("u", "")  # Fornecer uma unidade padrão vazia se não existir
+            "unit": value.get("u")
         })
 
     # Gerar gráficos para cada sensor
@@ -62,11 +59,11 @@ def fetch_all_graphs():
         fig.savefig(img_stream, format='png')
         img_stream.seek(0)
         graphs[sensor] = base64.b64encode(img_stream.getvalue()).decode('utf-8')
-        plt.close(fig)  # Fechar a figura para liberar memória
 
     return render_template('dashboard.html', graphs=graphs)
 
-# Rota para gerar gráfico de temperatura
+    
+# Rota para gerar gráfico
 @app.route('/temperatura', methods=['GET'])
 def plot_data():
     ref = get_database_reference()
@@ -74,14 +71,22 @@ def plot_data():
     if not data:
         return jsonify({"message": "Nenhum dado disponível para gerar gráfico"}), 404
 
-    # Extrair timestamps e valores de temperatura
+    # Extrair timestamps e valores
     timestamps, values = [], []
     for key, value in data.items():
-        if value.get("n") == "Cel" and "bt" in value and "v" in value:
-            timestamp = value.get("bt")
-            temp_value = value.get("v")
-            timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
-            values.append(float(temp_value))
+        # Acessar a chave "temperature" que está dentro de cada item
+        temperature_data = value.get("temperature", {})
+        timestamp = value.get("timestamp")
+        
+        # Verificar se a chave "temperature" existe
+        if temperature_data:
+            temp_value = temperature_data.get("value")
+            
+            # Verificar se os dados de timestamp e valor de temperatura existem
+            if timestamp and temp_value is not None:
+                # Adicionar o timestamp formatado e o valor da temperatura
+                timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+                values.append(float(temp_value))
 
     if not values:
         return jsonify({"message": "Nenhum dado de temperatura disponível"}), 404
@@ -107,11 +112,11 @@ def plot_data():
     buf.seek(0)
     image_base64 = base64.b64encode(buf.read()).decode('utf-8')
     buf.close()
-    plt.close()  # Fechar o gráfico
 
     # Preparar os dados para exibir no template
     temperature_data = [{"timestamp": ts, "value": val} for ts, val in zip(timestamps, values)]
 
+    # Retornar a imagem e dados para o frontend
     return render_template('temp.html', 
                            image_data=image_base64, 
                            last_temperature=last_temperature,
@@ -124,12 +129,12 @@ def plot_data():
 def run_mqtt():
     client = setup_mqtt()
     if client:
-        print("MQTT conectado com sucesso")
         client.loop_forever()
     else:
         print("Erro: Cliente MQTT não foi inicializado corretamente.")
 
 if __name__ == "__main__":
+    matplotlib.use('Agg')
     multiprocessing.set_start_method('spawn', force=True)
     # Inicie o MQTT em um processo separado
     mqtt_process = Process(target=run_mqtt)
@@ -137,8 +142,5 @@ if __name__ == "__main__":
 
     print("Processo MQTT iniciado:", mqtt_process.is_alive())
 
-    try:
-        app.run(debug=True, use_reloader=False)
-    finally:
-        mqtt_process.terminate()
-        mqtt_process.join()
+    # Rode o Flask
+    app.run(debug=True, use_reloader=False)
