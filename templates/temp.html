@@ -178,19 +178,20 @@
         <div class="dados-container">
             <div class="dados-item">
                 <h3>Última Temperatura</h3>
-                <p>{{ last_temperature }} °C</p>
+                <p>{{ "%.2f"|format(last_temperature) }} °C</p>
+
             </div>
             <div class="dados-item">
                 <h3>Temperatura Média</h3>
-                <p>{{ average_temperature }} °C</p>
+                <p>{{ "%.2f"|format(average_temperature) }} °C</p>
             </div>
             <div class="dados-item">
                 <h3>Temperatura Máxima</h3>
-                <p>{{ max_temperature }} °C</p>
+                <p>{{ "%.2f"|format(max_temperature) }} °C</p>
             </div>
             <div class="dados-item">
                 <h3>Temperatura Mínima</h3>
-                <p>{{ min_temperature }} °C</p>
+                <p>{{ "%.2f"|format(min_temperature) }} °C</p>
             </div>
         </div>
 
