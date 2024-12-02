@@ -215,7 +215,7 @@
                     {% for data in temperature_data %}
                     <tr>
                         <td>{{ data.timestamp }}</td>
-                        <td>{{ data.value }} °C</td>
+                        <td>{{ "%.2f"|format(data.value) }} °C</td>
                     </tr>
                     {% endfor %}
                 </tbody>
