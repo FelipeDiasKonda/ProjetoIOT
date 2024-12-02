@@ -28,21 +28,37 @@ def fetch_all_graphs():
     # Organizar os dados por tipo de sensor
     sensor_data = {}
     for key, value in data.items():
-        sensor = value.get("n")
-        if sensor not in sensor_data:
-            sensor_data[sensor] = []
-        sensor_data[sensor].append({
-            "timestamp": value.get("bt"),
-            "value": value.get("v"),
-            "unit": value.get("u")
-        })
+        # Acessar o tipo de sensor diretamente pelas chaves específicas
+        for sensor_key in ['temperature', 'humidity', 'rain_level', 'solar_radiation', 'uv_index', 'wind_direction', 'wind_speed']:
+            sensor_value = value.get(sensor_key)
+            timestamp = value.get('timestamp')
+
+            # Verificar se o valor do sensor e o timestamp existem
+            if sensor_value is not None and timestamp:
+                # Se o sensor_value for um dicionário, tente acessar o valor correto
+                if isinstance(sensor_value, dict):
+                    sensor_value = sensor_value.get('value')
+
+                # Se não tiver dados para esse sensor, inicializa
+                if sensor_key not in sensor_data:
+                    sensor_data[sensor_key] = {"timestamps": [], "values": [], "unit": value.get('u', 'Unidade não definida')}
+
+                # Adicionar os dados
+                sensor_data[sensor_key]["timestamps"].append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+                try:
+                    sensor_data[sensor_key]["values"].append(float(sensor_value))  # Tentar converter para float
+                except ValueError:
+                    continue  # Se não conseguir converter, simplesmente ignore
+
+    if not sensor_data:
+        return jsonify({"message": "Nenhum dado de sensores encontrado"}), 404
 
     # Gerar gráficos para cada sensor
     graphs = {}
-    for sensor, values in sensor_data.items():
-        timestamps = [time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(v["timestamp"])) for v in values]
-        sensor_values = [v["value"] for v in values]
-        unit = values[0]["unit"]
+    for sensor, data in sensor_data.items():
+        timestamps = data["timestamps"]
+        sensor_values = data["values"]
+        unit = data["unit"]
 
         # Criar gráfico
         fig, ax = plt.subplots()
@@ -61,6 +77,7 @@ def fetch_all_graphs():
         graphs[sensor] = base64.b64encode(img_stream.getvalue()).decode('utf-8')
 
     return render_template('dashboard.html', graphs=graphs)
+
 
     
 # Rota para gerar gráfico
