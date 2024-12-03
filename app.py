@@ -78,8 +78,6 @@ def fetch_all_graphs():
 
     return render_template('dashboard.html', graphs=graphs)
 
-
-    
 # Rota para gerar gráfico
 @app.route('/temperatura', methods=['GET'])
 def plot_data():
@@ -160,4 +158,4 @@ if __name__ == "__main__":
     print("Processo MQTT iniciado:", mqtt_process.is_alive())
 
     # Rode o Flask
-    app.run(debug=True, use_reloader=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)
