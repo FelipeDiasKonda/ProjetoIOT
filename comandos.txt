@@ -1,0 +1,2 @@
+build : docker build -t flask-firebase-mqtt-app . (sim o ponto eh importante, porque ele pega o diretorio da pasta do projeto)
+roda: docker run -d -p 5000:5000 --name flask_app flask-firebase-mqtt-app
