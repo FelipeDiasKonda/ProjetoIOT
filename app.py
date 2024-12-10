@@ -62,7 +62,7 @@ def index():
     # Mensagens baseadas nos valores
     rain_status = "Está seco" if rain_level < 0.2 else "Está chovendo"
     uv_status = "Dia nublado" if uv_index < 3 else "Dia ensolarado"
-    humidity_status = "Lembre-se de tomar água" if humidity < 40 else "Humidade normal"
+    humidity_status = "Lembre-se de tomar água" if humidity < 40 else "Umidade normal"
     temperature_status = "Está frio" if temperature < 20 else "Está quente"
 
     return render_template('index.html', 
@@ -222,4 +222,4 @@ if __name__ == "__main__":
     print("Processo MQTT iniciado:", mqtt_process.is_alive())
 
     # Rode o Flask
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(debug=True, host='0.0.0.0', port=5000)

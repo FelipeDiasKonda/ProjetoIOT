@@ -4,11 +4,14 @@ FROM python:3.9-slim
 # Configure o diretório de trabalho
 WORKDIR /app
 
-# Copie os arquivos do projeto para o container
-COPY . .
+# Copie apenas o arquivo de dependências primeiro (para melhor cache de camadas)
+COPY requirements.txt .
 
 # Instale as dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Configure o ponto de entrada
+# Copie o restante dos arquivos (opcional para produção, desnecessário em dev)
+# COPY . .
+
+# Configure o ponto de entrada para a aplicação
 CMD ["python", "app.py"]

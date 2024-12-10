@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  flask_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"  # Mapeia a porta 5000 do container para a máquina local
+    volumes:
+      - .:/app       # Monta o diretório local no container
+    environment:
+      - FLASK_ENV=development  # Configura o ambiente para desenvolvimento
+    command: python app.py     # Executa a aplicação
