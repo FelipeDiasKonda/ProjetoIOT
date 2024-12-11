@@ -9,11 +9,75 @@ import multiprocessing
 from multiprocessing import Process 
 import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
 from mqtt_handler import setup_mqtt
+import math
 app = Flask(__name__)
+
+def rad_to_direction_with_icon(rad):
+    """Converte radianos para direção cardeal e retorna ícone correspondente."""
+    directions = [
+        ('N', 'rotate-0'),    # Norte
+        ('NE', 'rotate-45'),  # Nordeste
+        ('E', 'rotate-90'),   # Leste
+        ('SE', 'rotate-135'), # Sudeste
+        ('S', 'rotate-180'),  # Sul
+        ('SW', 'rotate-225'), # Sudoeste
+        ('W', 'rotate-270'),  # Oeste
+        ('NW', 'rotate-315')  # Noroeste
+    ]
+    rad = rad % (2 * math.pi)
+    index = int((rad + math.pi / 8) // (math.pi / 4)) % 8
+    return directions[index]
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    ref = get_database_reference()
+    data = ref.get()
+
+    if not data:
+        return render_template('index.html', message="Nenhum dado disponível no momento.")
+
+    # Dados dos sensores
+    wind_direction_rad = 0
+    uv_index = 0
+    humidity = 0
+    rain_level = 0
+    temperature = 0
+
+    # Verificar e extrair os valores mais recentes
+    for key, value in data.items():
+        if 'wind_direction' in value:
+            wind_direction_rad = float(value['wind_direction'].get('value', 0))
+        if 'uv_index' in value:
+            uv_index = float(value['uv_index'].get('value', 0))
+        if 'humidity' in value:
+            humidity = float(value['humidity'].get('value', 0))
+        if 'rain_level' in value:
+            rain_level = float(value['rain_level'].get('value', 0))
+        if 'temperature' in value:
+            temperature = float(value['temperature'].get('value', 0))
+
+    # Converter radianos para direção cardeal e ícone
+    wind_direction, wind_icon_class = rad_to_direction_with_icon(wind_direction_rad)
+
+    # Mensagens baseadas nos valores
+    rain_status = "Está seco" if rain_level < 0.2 else "Está chovendo"
+    uv_status = "Dia nublado" if uv_index < 3 else "Dia ensolarado"
+    humidity_status = "Lembre-se de tomar água" if humidity < 40 else "Umidade normal"
+    temperature_status = "Está frio" if temperature < 20 else "Está quente"
+
+    return render_template('index.html', 
+                           wind_direction=wind_direction,
+                           wind_icon_class=wind_icon_class,
+                           uv_status=uv_status, 
+                           humidity_status=humidity_status, 
+                           rain_status=rain_status,
+                           temperature_status=temperature_status,
+                           temperature=temperature,
+                           uv_index=uv_index,
+                           humidity=humidity,
+                           rain_level=rain_level)
+
+
 
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
@@ -78,8 +142,6 @@ def fetch_all_graphs():
 
     return render_template('dashboard.html', graphs=graphs)
 
-
-    
 # Rota para gerar gráfico
 @app.route('/temperatura', methods=['GET'])
 def plot_data():
@@ -160,4 +222,4 @@ if __name__ == "__main__":
     print("Processo MQTT iniciado:", mqtt_process.is_alive())
 
     # Rode o Flask
-    app.run(debug=True, use_reloader=False)
+    app.run(debug=True, host='0.0.0.0', port=5000)
