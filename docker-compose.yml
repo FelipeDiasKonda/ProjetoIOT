@@ -6,7 +6,7 @@ services:
       context: .  # Diretório atual
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"  # Mapeia a porta 5000 do container para a máquina local
+      - "80:80"  # Mapeia a porta 5000 do container para a máquina local
     volumes:
       - .:/app  # Monta o diretório local no container
     environment:
