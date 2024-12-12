@@ -70,7 +70,7 @@ def plot_data():
     plot_url = base64.b64encode(img.getvalue()).decode()
     plt.close()
 
-    return f'<img src="data:image/png;base64,{plot_ur}" />'
+    return f'<img src="data:image/png;base64,{plot_url}" />'
 
 # Função para rodar o MQTT em um processo separado
 def run_mqtt():
