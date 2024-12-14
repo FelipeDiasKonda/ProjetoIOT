@@ -1,6 +1,7 @@
 import time
 import json
 import paho.mqtt.client as mqtt
+import mysql.connector
 from firebase_setup import get_database_reference
 
 def send_to_firebase(data):
@@ -11,6 +12,49 @@ def send_to_firebase(data):
         print("Dados enviados ao Firebase:", data)
     except Exception as e:
         print(f"Erro ao enviar dados para o Firebase: {e}")
+
+def save_to_mysql(data):
+    """Salvar dados no MySQL."""
+    try:
+        connection = mysql.connector.connect(
+            host="mysql",  # Nome do serviço MySQL no Docker Compose
+            user="root",
+            password="example",
+            database="weather_data"
+        )
+        cursor = connection.cursor()
+
+        # Inserir dados no banco de dados
+        query = """
+            INSERT INTO sensor_data (
+                rain_level,
+                average_wind_speed,
+                wind_direction,
+                humidity,
+                uv_index,
+                solar_radiation,
+                temperature,
+                timestamp
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (
+            data.get("rain_level", {}).get("value"),
+            data.get("average_wind_speed", {}).get("value"),
+            data.get("wind_direction", {}).get("value"),
+            data.get("humidity", {}).get("value"),
+            data.get("uv_index", {}).get("value"),
+            data.get("solar_radiation", {}).get("value"),
+            data.get("temperature", {}).get("value"),
+            data.get("timestamp")
+        ))
+        connection.commit()
+        print("Dados salvos no MySQL:", data)
+    except mysql.connector.Error as e:
+        print(f"Erro ao salvar dados no MySQL: {e}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
 
 def on_connect(client, userdata, flags, rc):
     """Callback chamada ao conectar ao broker MQTT."""
@@ -51,13 +95,14 @@ def on_message(client, userdata, msg):
                     data_to_save["uv_index"] = {"value": value, "unit": unit}
                 elif label == "emw_solar_radiation":
                     data_to_save["solar_radiation"] = {"value": value, "unit": unit}
-                elif unit == "temperature":
+                elif label == "emw_temperature":
                     data_to_save["temperature"] = {"value": value, "unit": unit}
 
             # Verificar se há dados para salvar
             if data_to_save:
                 data_to_save["timestamp"] = time.time()
                 send_to_firebase(data_to_save)
+                save_to_mysql(data_to_save)
         else:
             # Adicione aqui um debug para entender o formato do payload
             print("Payload recebido não é uma lista. Conteúdo:", payload)
@@ -74,7 +119,7 @@ def setup_mqtt():
 
     try:
         print("Tentando conectar ao broker MQTT...")
-        client.connect("18.206.168.232", 1883, 5)  # Substitua pelo endereço do broker
+        client.connect("98.84.130.156", 1883, 5)  # Substitua pelo endereço do broker
     except Exception as e:
         print(f"Erro ao conectar ao broker MQTT: {e}")
         return None
