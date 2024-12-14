@@ -203,7 +203,7 @@
             Nível de Chuva
             <i class="fas fa-cloud-showers-heavy"></i>
           </h2>
-          <p id="rain-level">{{ "%.f"|format(rain_level) }}</p>
+          <p id="rain-level">{{ "%.3f"|format(rain_level) }} mm</p>
           <p id="rain-status">{{ rain_status }}</p>
         </div>
         <div class="metric-box" id="uv-box">
@@ -317,6 +317,10 @@
         windIcon.classList.remove("fa-wind");
         windIcon.classList.add("fa-wind"); // Se necessário, pode adicionar mais lógica para vento forte
       }
+      
+      setInterval(updateData, 600000);
+      // Atualizar os dados imediatamente ao carregar a página
+      updateData();
     </script>
   </body>
 </html>
