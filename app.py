@@ -30,7 +30,7 @@ def rad_to_direction_with_icon(rad):
 
 def get_rain_status(rain_level):
     """Determina o status da chuva com base no nível acumulado."""
-    if rain_level < 0.2:
+    if rain_level < 1:
         return "Sem chuva"
     elif rain_level < 2.5:
         return "Chuviscando"
