@@ -4,7 +4,7 @@ import time
 
 def setup_firebase():
     """Configura o Firebase."""
-    cred = credentials.Certificate("projetoiot-816bb-firebase-adminsdk-51dcx-f7d69da51d.json")  # Substitua pelo seu arquivo JSON
+    cred = credentials.Certificate("projetoiot-816bb-firebase-adminsdk-51dcx-17cd3df41b.json")  # Substitua pelo seu arquivo JSON
     firebase_admin.initialize_app(cred, {
         'databaseURL': 'https://projetoiot-816bb-default-rtdb.firebaseio.com/'  # Substitua pela URL do Firebase
     })

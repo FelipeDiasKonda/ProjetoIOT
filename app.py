@@ -28,6 +28,51 @@ def rad_to_direction_with_icon(rad):
     index = int((rad + math.pi / 8) // (math.pi / 4)) % 8
     return directions[index]
 
+def get_rain_status(rain_level):
+    """Determina o status da chuva com base no nível acumulado."""
+    if rain_level < 0.2:
+        return "Sem chuva"
+    elif rain_level < 2.5:
+        return "Chuviscando"
+    elif rain_level < 7.6:
+        return "Chuva moderada"
+    else:
+        return "Chuva forte"
+
+def get_uv_status(uv_index):
+    """Determina o status da radiação UV."""
+    if uv_index < 3:
+        return "Níveis baixos de UV"
+    elif uv_index < 6:
+        return "Níveis moderados de UV"
+    elif uv_index < 8:
+        return "Níveis altos de UV"
+    elif uv_index < 11:
+        return "Níveis muito altos de UV"
+    else:
+        return "Risco extremo de UV"
+
+def get_humidity_status(humidity):
+    """Determina o status da umidade."""
+    if humidity < 30:
+        return "Ar muito seco"
+    elif humidity < 60:
+        return "Umidade confortável"    
+    else:
+        return "Ar muito úmido"
+
+def get_temperature_status(temperature):
+    """Determina o status da temperatura."""
+    if temperature < 10:
+        return "Frio intenso"
+    elif temperature < 20:
+        return "Clima frio"
+    elif temperature < 30:
+        return "Clima agradável"
+    elif temperature < 40:
+        return "Clima quente"
+    else:
+        return "Calor extremo"
 @app.route('/')
 def index():
     ref = get_database_reference()
@@ -60,10 +105,10 @@ def index():
     wind_direction, wind_icon_class = rad_to_direction_with_icon(wind_direction_rad)
 
     # Mensagens baseadas nos valores
-    rain_status = "Está seco" if rain_level < 0.2 else "Está chovendo"
-    uv_status = "Dia nublado" if uv_index < 3 else "Dia ensolarado"
-    humidity_status = "Lembre-se de tomar água" if humidity < 40 else "Umidade normal"
-    temperature_status = "Está frio" if temperature < 20 else "Está quente"
+    rain_status = get_rain_status(rain_level)
+    uv_status = get_uv_status(uv_index)
+    humidity_status = get_humidity_status(humidity)
+    temperature_status = get_temperature_status(temperature)
 
     return render_template('index.html', 
                            wind_direction=wind_direction,
@@ -77,71 +122,30 @@ def index():
                            humidity=humidity,
                            rain_level=rain_level)
 
-
-
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
-def fetch_all_graphs():
-    """Buscar dados do Firebase e gerar gráficos para todos os sensores."""
+def dashboard():
+    """Rota principal para exibir o dashboard com gráficos interativos."""
     ref = get_database_reference()
     data = ref.get()
 
     if not data:
-        return jsonify({"message": "Nenhum dado encontrado"}), 404
+        return render_template('dashboard.html', message="Nenhum dado disponível no momento.")
 
-    # Organizar os dados por tipo de sensor
-    sensor_data = {}
+    # Organizar os dados para gráficos
+    sensor_data = {"temperature": [], "humidity": [], "rain_level": [], "timestamps": []}
     for key, value in data.items():
-        # Acessar o tipo de sensor diretamente pelas chaves específicas
-        for sensor_key in ['temperature', 'humidity', 'rain_level', 'solar_radiation', 'uv_index', 'wind_direction', 'wind_speed']:
-            sensor_value = value.get(sensor_key)
-            timestamp = value.get('timestamp')
+        timestamp = value.get("timestamp")
+        if timestamp:
+            formatted_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp))
+            sensor_data["timestamps"].append(formatted_time)
+        
+        # Adicionar os valores dos sensores
+        for sensor_key in ["temperature", "humidity", "rain_level"]:
+            sensor_value = value.get(sensor_key, {}).get("value")
+            sensor_data[sensor_key].append(float(sensor_value) if sensor_value else None)
 
-            # Verificar se o valor do sensor e o timestamp existem
-            if sensor_value is not None and timestamp:
-                # Se o sensor_value for um dicionário, tente acessar o valor correto
-                if isinstance(sensor_value, dict):
-                    sensor_value = sensor_value.get('value')
-
-                # Se não tiver dados para esse sensor, inicializa
-                if sensor_key not in sensor_data:
-                    sensor_data[sensor_key] = {"timestamps": [], "values": [], "unit": value.get('u', 'Unidade não definida')}
-
-                # Adicionar os dados
-                sensor_data[sensor_key]["timestamps"].append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
-                try:
-                    sensor_data[sensor_key]["values"].append(float(sensor_value))  # Tentar converter para float
-                except ValueError:
-                    continue  # Se não conseguir converter, simplesmente ignore
-
-    if not sensor_data:
-        return jsonify({"message": "Nenhum dado de sensores encontrado"}), 404
-
-    # Gerar gráficos para cada sensor
-    graphs = {}
-    for sensor, data in sensor_data.items():
-        timestamps = data["timestamps"]
-        sensor_values = data["values"]
-        unit = data["unit"]
-
-        # Criar gráfico
-        fig, ax = plt.subplots()
-        ax.plot(timestamps, sensor_values, marker='o', label=sensor, color='tab:blue')
-        ax.set_xlabel('Timestamp')
-        ax.set_ylabel(f'{sensor} ({unit})')
-        ax.set_title(f'Gráfico de {sensor}')
-        ax.legend()
-        plt.xticks(rotation=45)
-        plt.tight_layout()
-
-        # Converter gráfico para base64
-        img_stream = io.BytesIO()
-        fig.savefig(img_stream, format='png')
-        img_stream.seek(0)
-        graphs[sensor] = base64.b64encode(img_stream.getvalue()).decode('utf-8')
-
-    return render_template('dashboard.html', graphs=graphs)
-
+    return render_template('dashboard.html', sensor_data=sensor_data)
 # Rota para gerar gráfico
 @app.route('/temperatura', methods=['GET'])
 def plot_data():

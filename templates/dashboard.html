@@ -1,282 +1,266 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PUC Clima</title>
-    <link rel="icon" href="{{ url_for('static', filename='clima.png') }}" type="image/png">
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='clima.png') }}"
+      type="image/png"
+    />
     <style>
-        /* RESET DE ESTILOS */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      /* RESET DE ESTILOS */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1f2a44, #4e6e88);
-            color: #fff;
-            margin: 0;
-            height: 100vh;
-            overflow-x: hidden;
-        }
+      body {
+        font-family: "Roboto", sans-serif;
+        background: linear-gradient(135deg, #1f2a44, #4e6e88);
+        color: #ffffff;
+        margin: 0;
+        height: 100vh;
+        overflow-x: hidden;
+      }
 
-        /* CABEÇALHO FIXO */
-        header {
-            background: rgba(20, 27, 43, 0.85);
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            display: flex;
-            align-items: center;
-        }
+      /* CABEÇALHO FIXO */
+      header {
+        background: rgba(20, 27, 43, 0.85);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+      }
 
-        .header-content {
-            display: flex;
-            width: 100%;
-            justify-content: center;
-            align-items: center;
+      .header-content {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+      }
+
+      header h1 {
+        color: #02d7fd;
+        font-size: 3em;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        margin: 0;
+        text-align: center;
+      }
+
+      /* Botão de voltar */
+      .back-btn {
+        background-color: #02d7fd;
+        color: #fff;
+        font-size: 1.2em;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background-color 0.3s ease;
+        position: absolute;
+        left: 20px;
+      }
+
+      .back-btn:hover {
+        background-color: #0197c1;
+      }
+
+      /* CONTEÚDO PRINCIPAL */
+      .container {
+        margin-top: 120px;
+        padding: 40px;
+        background: rgba(20, 27, 43, 0.85);
+        border-radius: 30px;
+        width: 90%;
+        max-width: 1300px;
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+        backdrop-filter: blur(20px);
+        animation: fadeIn 1s ease-out;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .graph-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+
+      .graph-item {
+        background: rgb(170, 170, 170);
+        border-radius: 15px;
+        padding: 25px;
+        transition: transform 0.3s, box-shadow 0.3s ease-in-out;
+        box-shadow: 0 4px 10px rgb(170, 170, 170);
+        position: relative;
+        cursor: pointer;
+        width: 100%;
+      }
+
+      .graph-item canvas {
+        width: 100%;
+        height: auto;
+        border-radius: 15px;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .graph-item h3 {
+        color: #0199c1;
+        font-size: 1.6em;
+        margin-bottom: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
+      .graph-item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      }
+
+      /* ANIMAÇÕES */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* EFEITO DE BORDAS FUTURISTAS */
+      .graph-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #00b4d8, #ff5f6d);
+        opacity: 0.3;
+        border-radius: 15px;
+        z-index: -1;
+        transform: scale(0.95);
+        transition: transform 0.3s ease-in-out;
+      }
+
+      .graph-item:hover::before {
+        transform: scale(1);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 30px;
         }
 
         header h1 {
-            color: #02d7fd;
-            font-size: 3em;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin: 0;
-            text-align: center;
+          font-size: 2.5em;
         }
-
-        /* Botão de voltar */
-        .back-btn {
-            background-color: #02d7fd;
-            color: #fff;
-            font-size: 1.2em;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.3s ease;
-            position: absolute;
-            left: 20px;
-        }
-
-        .back-btn:hover {
-            background-color: #0199c1;
-        }
-
-        /* CONTEÚDO PRINCIPAL */
-        .container {
-            margin-top: 120px;
-            padding: 40px;
-            background: rgba(20, 27, 43, 0.85);
-            border-radius: 30px;
-            width: 90%;
-            max-width: 1300px;
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(20px);
-            animation: fadeIn 1s ease-out;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .graph-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-
-        .graph-item {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 25px;
-            transition: transform 0.3s, box-shadow 0.3s ease-in-out;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            position: relative;
-            cursor: pointer;
-        }
-
-        .graph-item img {
-            width: 100%;
-            border-radius: 15px;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .graph-item h3 {
-            color: #ffd700;
-            font-size: 1.6em;
-            margin-bottom: 15px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .graph-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .graph-item:hover img {
-            transform: scale(1.05);
-        }
-
-        /* ANIMAÇÕES */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* EFEITO DE BORDAS FUTURISTAS */
-        .graph-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #00b4d8, #ff5f6d);
-            opacity: 0.3;
-            border-radius: 15px;
-            z-index: -1;
-            transform: scale(0.95);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .graph-item:hover::before {
-            transform: scale(1);
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .modal-content {
-            position: relative;
-            max-width: 90%;
-            max-height: 90%;
-            overflow: auto;
-        }
-
-        .modal-content img {
-            width: 100%;
-            height: auto;
-            border-radius: 20px;
-            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);
-        }
-
-        .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 255, 255, 0.8);
-            border: none;
-            padding: 10px;
-            font-size: 20px;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: background 0.3s;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 1);
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 30px;
-            }
-
-            header h1 {
-                font-size: 2.5em;
-            }
-        }
-
+      }
+      
     </style>
-</head>
-<body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
     <header>
-        <a href="/" class="back-btn">Voltar</a>
-        <div class="header-content">
-            <h2>Dashboard de Sensores</h2>
-        </div>
+      <a href="/" class="back-btn">Voltar</a>
+      <div class="header-content">
+        <h2>Dashboard de Sensores</h2>
+      </div>
     </header>
 
     <div class="container">
-        <div class="graph-container">
-            {% for sensor, image_data in graphs.items() %}
-            <div class="graph-item" onclick="openModal('{{ image_data }}')">
-                <h3>{{ sensor }}</h3>
-                <img src="data:image/png;base64,{{ image_data }}" alt="Gráfico de {{ sensor }}">
-            </div>
-            {% endfor %}
+      <div class="graph-container">
+        <div class="graph-item">
+          <h3>Dados Climáticos</h3>
+          <canvas id="climateChart"></canvas>
         </div>
-    </div>
-
-    <!-- Modal para exibir imagem expandida -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <button class="close-btn" onclick="closeModal()">×</button>
-            <img id="modal-img" src="" alt="Gráfico expandido">
-        </div>
+      </div>
     </div>
 
     <script>
-        function openModal(imageData) {
-            // Exibe o modal com a imagem clicada
-            document.getElementById('modal').style.display = 'flex';
-            document.getElementById('modal-img').src = 'data:image/png;base64,' + imageData;
-        }
+      const sensorData = JSON.parse('{{ sensor_data|tojson|safe }}');
 
-        function closeModal() {
-            // Fecha o modal
-            document.getElementById('modal').style.display = 'none';
-        }
-
-        // Fecha o modal se clicar fora da imagem
-        window.onclick = function(event) {
-            if (event.target == document.getElementById('modal')) {
-                closeModal();
+      const climateCtx = document.getElementById('climateChart').getContext('2d');
+      new Chart(climateCtx, {
+        type: 'line',
+        data: {
+          labels: sensorData.timestamps,
+          datasets: [
+            {
+              label: 'Temperatura (°C)',
+              data: sensorData.temperature,
+              borderColor: 'rgba(255, 99, 132, 1)',
+              backgroundColor: 'rgba(255, 99, 132, 0.2)',
+              borderWidth: 2,
+              fill: true
+            },
+            {
+              label: 'Umidade (%)',
+              data: sensorData.humidity,
+              borderColor: 'rgba(54, 162, 235, 1)',
+              backgroundColor: 'rgba(54, 162, 235, 0.2)',
+              borderWidth: 2,
+              fill: true
+            },
+            {
+              label: 'Nível de Chuva (mm)',
+              data: sensorData.rain_level,
+              borderColor: 'rgba(75, 192, 192, 1)',
+              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+              borderWidth: 2,
+              fill: true
             }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top'
+            },
+            tooltip: {
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              titleColor: '#000',
+              bodyColor: '#000'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false
+            },
+            x: {
+              ticks: {
+                color: '#000'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
+            y: {
+              ticks: {
+                color: '#001'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            }
+          }
         }
-    const sensorTitles = {
-        "Cel": "Temperatura em Celsius",
-        "rain_level": "Nível de Chuva \n(em metros)",
-        "average_wind_speed": "Velocidade Média \ndo Vento",
-        "wind_direction": "Direção do Vento",
-        "humidity": "Umidade Relativa",
-        "uv_index": "Índice UV",
-        "solar_radiation": "Radiação Solar",
-    };
-
-    // Atualizar títulos dinamicamente
-    document.querySelectorAll('.graph-item h3').forEach(element => {
-        const originalTitle = element.textContent.trim();
-        element.textContent = sensorTitles[originalTitle] || originalTitle;
-    });
-
+      });
     </script>
-</body>
+  </body>
 </html>

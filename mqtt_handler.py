@@ -51,7 +51,7 @@ def on_message(client, userdata, msg):
                     data_to_save["uv_index"] = {"value": value, "unit": unit}
                 elif label == "emw_solar_radiation":
                     data_to_save["solar_radiation"] = {"value": value, "unit": unit}
-                elif unit == "temperature":
+                elif label == "emw_temperature":
                     data_to_save["temperature"] = {"value": value, "unit": unit}
 
             # Verificar se há dados para salvar
@@ -74,7 +74,7 @@ def setup_mqtt():
 
     try:
         print("Tentando conectar ao broker MQTT...")
-        client.connect("18.206.168.232", 1883, 5)  # Substitua pelo endereço do broker
+        client.connect("98.84.130.156", 1883, 5)  # Substitua pelo endereço do broker
     except Exception as e:
         print(f"Erro ao conectar ao broker MQTT: {e}")
         return None
