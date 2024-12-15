@@ -1,17 +1,8 @@
 import time
 import json
 import paho.mqtt.client as mqtt
-from firebase_setup import get_database_reference
 import mysql.connector
 
-def send_to_firebase(data):
-    """Enviar dados para o Firebase."""
-    try:
-        ref = get_database_reference()
-        ref.push(data)
-        print("Dados enviados ao Firebase:", data)
-    except Exception as e:
-        print(f"Erro ao enviar dados para o Firebase: {e}")
 
 def save_to_mysql(data):
     """Salvar dados no MySQL."""
@@ -112,7 +103,6 @@ def on_message(client, userdata, msg):
             # Verificar se há dados para salvar
             if data_to_save:
                 data_to_save["timestamp"] = time.time()
-                #send_to_firebase(data_to_save)
                 save_to_mysql(data_to_save)
         else:
             # Adicione aqui um debug para entender o formato do payload

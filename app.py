@@ -4,7 +4,6 @@ from flask import Flask, jsonify, render_template
 import matplotlib.pyplot as plt
 import io
 import base64
-from firebase_setup import get_database_reference
 import multiprocessing
 from multiprocessing import Process 
 import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
