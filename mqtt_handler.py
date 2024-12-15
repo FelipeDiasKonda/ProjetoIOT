@@ -2,6 +2,7 @@ import time
 import json
 import paho.mqtt.client as mqtt
 from firebase_setup import get_database_reference
+import mysql.connector
 
 def send_to_firebase(data):
     """Enviar dados para o Firebase."""
@@ -12,11 +13,65 @@ def send_to_firebase(data):
     except Exception as e:
         print(f"Erro ao enviar dados para o Firebase: {e}")
 
+def save_to_mysql(data):
+    """Salvar dados no MySQL."""
+    try:
+        connection = mysql.connector.connect(
+            host="mysql",  # Nome do serviço MySQL no Docker Compose
+            user="root",
+            password="example",
+            database="weather_data"
+        )
+        cursor = connection.cursor()
+
+        # Inserir dados no banco de dados
+        query = """
+            INSERT INTO sensor_data (
+                rain_level,
+                average_wind_speed,
+                wind_direction,
+                humidity,
+                uv_index,
+                solar_radiation,
+                temperature,
+                timestamp
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE 
+                rain_level = VALUES(rain_level),
+                average_wind_speed = VALUES(average_wind_speed),
+                wind_direction = VALUES(wind_direction),
+                humidity = VALUES(humidity),
+                uv_index = VALUES(uv_index),
+                solar_radiation = VALUES(solar_radiation),
+                temperature = VALUES(temperature)
+        """
+        cursor.execute(query, (
+            data.get("rain_level", {}).get("value"),
+            data.get("average_wind_speed", {}).get("value"),
+            data.get("wind_direction", {}).get("value"),
+            data.get("humidity", {}).get("value"),
+            data.get("uv_index", {}).get("value"),
+            data.get("solar_radiation", {}).get("value"),
+            data.get("temperature", {}).get("value"),
+            data.get("timestamp")
+        ))
+        connection.commit()
+        print("Dados salvos no MySQL:", data)
+
+    except mysql.connector.Error as e:
+        print(f"Erro ao salvar dados no MySQL: {e}")
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
 def on_connect(client, userdata, flags, rc):
     """Callback chamada ao conectar ao broker MQTT."""
     if rc == 0:
         print("Conexão bem-sucedida ao broker MQTT!")
-        client.subscribe("konda")  # Substitua pelo tópico correto
+        if not userdata.get('subscribed', False):  # Verifica se já está inscrito
+            client.subscribe("konda")  # Substitua pelo tópico correto
+            userdata['subscribed'] = True
     else:
         print(f"Falha na conexão ao broker MQTT. Código de retorno: {rc}")
 
@@ -57,7 +112,8 @@ def on_message(client, userdata, msg):
             # Verificar se há dados para salvar
             if data_to_save:
                 data_to_save["timestamp"] = time.time()
-                send_to_firebase(data_to_save)
+                #send_to_firebase(data_to_save)
+                save_to_mysql(data_to_save)
         else:
             # Adicione aqui um debug para entender o formato do payload
             print("Payload recebido não é uma lista. Conteúdo:", payload)
@@ -68,7 +124,7 @@ def on_message(client, userdata, msg):
 
 def setup_mqtt():
     """Configurar e iniciar o cliente MQTT."""
-    client = mqtt.Client()
+    client = mqtt.Client(userdata={'subscribed': False})
     client.on_connect = on_connect
     client.on_message = on_message
 

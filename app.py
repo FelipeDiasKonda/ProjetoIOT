@@ -10,19 +10,20 @@ from multiprocessing import Process
 import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
 from mqtt_handler import setup_mqtt
 import math
+import mysql.connector
 app = Flask(__name__)
 
 def rad_to_direction_with_icon(rad):
     """Converte radianos para direção cardeal e retorna ícone correspondente."""
     directions = [
-        ('N', 'rotate-0'),    # Norte
-        ('NE', 'rotate-45'),  # Nordeste
-        ('E', 'rotate-90'),   # Leste
-        ('SE', 'rotate-135'), # Sudeste
-        ('S', 'rotate-180'),  # Sul
-        ('SW', 'rotate-225'), # Sudoeste
-        ('W', 'rotate-270'),  # Oeste
-        ('NW', 'rotate-315')  # Noroeste
+        ('Norte', 'rotate-0'),    # Norte
+        ('Nordeste', 'rotate-45'),  # Nordeste
+        ('Leste', 'rotate-90'),   # Leste
+        ('Sudeste', 'rotate-135'), # Sudeste
+        ('Sul', 'rotate-180'),  # Sul
+        ('Sudoeste', 'rotate-225'), # Sudoeste
+        ('Oeste', 'rotate-270'),  # Oeste
+        ('Noroeste', 'rotate-315')  # Noroeste
     ]
     rad = rad % (2 * math.pi)
     index = int((rad + math.pi / 8) // (math.pi / 4)) % 8
@@ -30,14 +31,13 @@ def rad_to_direction_with_icon(rad):
 
 def get_rain_status(rain_level):
     """Determina o status da chuva com base no nível acumulado."""
-    if rain_level < 1:
+    if rain_level < 0.7764:
         return "Sem chuva"
-    elif rain_level < 2.5:
+    elif rain_level < 0.7770:
         return "Chuviscando"
-    elif rain_level < 7.6:
-        return "Chuva moderada"
-    else:
-        return "Chuva forte"
+    else :
+        return "Chovendo"
+
 
 def get_uv_status(uv_index):
     """Determina o status da radiação UV."""
@@ -73,33 +73,60 @@ def get_temperature_status(temperature):
         return "Clima quente"
     else:
         return "Calor extremo"
+    
+def get_mysql_data():
+    """Buscar dados do MySQL."""
+    connection = None  # Inicializar connection como None
+    cursor = None      # Inicializar cursor como None
+    try:
+        connection = mysql.connector.connect(
+            host="mysql",  # Nome do serviço MySQL no Docker Compose
+            user="root",
+            password="example",
+            database="weather_data"
+        )
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM sensor_data ORDER BY timestamp DESC LIMIT 1")
+        result = cursor.fetchone()
+        return result
+    except mysql.connector.Error as e:
+        print(f"Erro ao buscar dados do MySQL: {e}")
+        return None
+    finally:
+        # Fechar cursor e conexão somente se foram abertos
+        if cursor is not None:
+            cursor.close()
+        if connection is not None and connection.is_connected():
+            connection.close()
+
+
 @app.route('/')
 def index():
-    ref = get_database_reference()
-    data = ref.get()
+    data = get_mysql_data()
 
     if not data:
-        return render_template('index.html', message="Nenhum dado disponível no momento.")
+        # Passar valores padrão ao template
+        return render_template(
+            'index.html', 
+            message="Nenhum dado disponível no momento.",
+            wind_direction="N/D",
+            wind_icon_class="rotate-0",
+            uv_status="N/A",
+            humidity_status="N/A",
+            rain_status="N/A",
+            temperature_status="N/A",
+            temperature=0,
+            uv_index=0,
+            humidity=0,
+            rain_level=0
+        )
 
     # Dados dos sensores
-    wind_direction_rad = 0
-    uv_index = 0
-    humidity = 0
-    rain_level = 0
-    temperature = 0
-
-    # Verificar e extrair os valores mais recentes
-    for key, value in data.items():
-        if 'wind_direction' in value:
-            wind_direction_rad = float(value['wind_direction'].get('value', 0))
-        if 'uv_index' in value:
-            uv_index = float(value['uv_index'].get('value', 0))
-        if 'humidity' in value:
-            humidity = float(value['humidity'].get('value', 0))
-        if 'rain_level' in value:
-            rain_level = float(value['rain_level'].get('value', 0))
-        if 'temperature' in value:
-            temperature = float(value['temperature'].get('value', 0))
+    wind_direction_rad = float(data.get('wind_direction', 0))
+    uv_index = float(data.get('uv_index', 0))
+    humidity = float(data.get('humidity', 0))
+    rain_level = float(data.get('rain_level', 0))
+    temperature = float(data.get('temperature', 0))
 
     # Converter radianos para direção cardeal e ícone
     wind_direction, wind_icon_class = rad_to_direction_with_icon(wind_direction_rad)
@@ -110,66 +137,90 @@ def index():
     humidity_status = get_humidity_status(humidity)
     temperature_status = get_temperature_status(temperature)
 
-    return render_template('index.html', 
-                           wind_direction=wind_direction,
-                           wind_icon_class=wind_icon_class,
-                           uv_status=uv_status, 
-                           humidity_status=humidity_status, 
-                           rain_status=rain_status,
-                           temperature_status=temperature_status,
-                           temperature=temperature,
-                           uv_index=uv_index,
-                           humidity=humidity,
-                           rain_level=rain_level)
+    return render_template(
+        'index.html',
+        wind_direction=wind_direction,
+        wind_icon_class=wind_icon_class,
+        uv_status=uv_status,
+        humidity_status=humidity_status,
+        rain_status=rain_status,
+        temperature_status=temperature_status,
+        temperature=temperature,
+        uv_index=uv_index,
+        humidity=humidity,
+        rain_level=rain_level
+    )
+
 
 # Rota para buscar dados do Firebase
 @app.route('/dados', methods=['GET'])
 def dashboard():
     """Rota principal para exibir o dashboard com gráficos interativos."""
-    ref = get_database_reference()
-    data = ref.get()
+    try:
+        connection = mysql.connector.connect(
+            host="mysql",  # Nome do serviço MySQL no Docker Compose
+            user="root",
+            password="example",
+            database="weather_data"
+        )
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT timestamp, temperature, humidity, rain_level FROM sensor_data ORDER BY timestamp")
+        data = cursor.fetchall()
+    except mysql.connector.Error as e:
+        print(f"Erro ao buscar dados do MySQL: {e}")
+        return jsonify({"message": "Erro ao buscar dados do MySQL"}), 500
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
 
     if not data:
         return render_template('dashboard.html', message="Nenhum dado disponível no momento.")
 
-    # Organizar os dados para gráficos
     sensor_data = {"temperature": [], "humidity": [], "rain_level": [], "timestamps": []}
-    for key, value in data.items():
-        timestamp = value.get("timestamp")
+    for row in data:
+        timestamp = row["timestamp"]
         if timestamp:
             formatted_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp))
             sensor_data["timestamps"].append(formatted_time)
-        
-        # Adicionar os valores dos sensores
-        for sensor_key in ["temperature", "humidity", "rain_level"]:
-            sensor_value = value.get(sensor_key, {}).get("value")
-            sensor_data[sensor_key].append(float(sensor_value) if sensor_value else None)
+        sensor_data["temperature"].append(row["temperature"])
+        sensor_data["humidity"].append(row["humidity"])
+        sensor_data["rain_level"].append(row["rain_level"])
 
     return render_template('dashboard.html', sensor_data=sensor_data)
+
 # Rota para gerar gráfico
 @app.route('/temperatura', methods=['GET'])
 def plot_data():
-    ref = get_database_reference()
-    data = ref.get()
+    try:
+        connection = mysql.connector.connect(
+            host="mysql",  # Nome do serviço MySQL no Docker Compose
+            user="root",
+            password="example",
+            database="weather_data"
+        )
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM sensor_data WHERE temperature IS NOT NULL ORDER BY timestamp")
+        data = cursor.fetchall()
+    except mysql.connector.Error as e:
+        print(f"Erro ao buscar dados do MySQL: {e}")
+        return jsonify({"message": "Erro ao buscar dados do MySQL"}), 500
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+
     if not data:
         return jsonify({"message": "Nenhum dado disponível para gerar gráfico"}), 404
 
     # Extrair timestamps e valores
     timestamps, values = [], []
-    for key, value in data.items():
-        # Acessar a chave "temperature" que está dentro de cada item
-        temperature_data = value.get("temperature", {})
-        timestamp = value.get("timestamp")
-        
-        # Verificar se a chave "temperature" existe
-        if temperature_data:
-            temp_value = temperature_data.get("value")
-            
-            # Verificar se os dados de timestamp e valor de temperatura existem
-            if timestamp and temp_value is not None:
-                # Adicionar o timestamp formatado e o valor da temperatura
-                timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
-                values.append(float(temp_value))
+    for row in data:
+        timestamp = row.get('timestamp')
+        temperature = row.get('temperature')
+        if timestamp and temperature is not None:
+            timestamps.append(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp)))
+            values.append(float(temperature))
 
     if not values:
         return jsonify({"message": "Nenhum dado de temperatura disponível"}), 404

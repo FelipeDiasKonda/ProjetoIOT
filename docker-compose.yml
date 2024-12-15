@@ -13,14 +13,29 @@ services:
       - FLASK_ENV=development  # Configura o ambiente para desenvolvimento
       - MQTT_BROKER=BrokerEstacao  # Nome do serviço Mosquitto como variáveis de ambiente
     command: python app.py  # Executa a aplicação
-  
-  mosquitto:
-    image: eclipse-mosquitto:latest  # Imagem oficial do Mosquitto
-    container_name: mosquitto-broker  # Nome do contêiner
+  mysql:
+    image: mysql:8.0  # Imagem oficial do MySQL
+    container_name: mysql-database  # Nome do container
+    environment:
+      MYSQL_ROOT_PASSWORD: example  # Senha root do MySQL
+      MYSQL_DATABASE: weather_data  # Nome do banco de dados
     ports:
-      - "1883:1883"  # Porta MQTT
+      - "3306:3306"  # Porta para acesso externo
     volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf  # Arquivo de configuração personalizado
-      - ./data:/mosquitto/data  # Persistência de dados
-      - ./log:/mosquitto/log  # Persistência de logs
-    restart: always  # Sempre reiniciar o container em caso de falha
+      - mysql_data:/var/lib/mysql  # Persistência de dados
+      - ./tabela.sql:/docker-entrypoint-initdb.d/tabela.sql  # Script para criar a tabela
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadminN 
+    environment:
+      PMA_HOST: mysql  # Nome do serviço MySQL no Docker Compose
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: example  # Deve ser igual ao configurado no MySQL
+    ports:
+      - "8000:80"  # Porta para acessar o phpMyAdmin no navegador
+    depends_on:
+      - mysql
+volumes:
+  mysql_data:
+    driver: local  # Volume para persistência do banco de dados
