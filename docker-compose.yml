@@ -3,27 +3,39 @@ version: '3.8'
 services:
   flask_app:
     build:
-      context: .  # Diretório atual
+      context: .  
       dockerfile: Dockerfile
     ports:
-      - "80:80"  # Mapeia a porta 5000 do container para a máquina local
+      - "80:80"  
     volumes:
-      - .:/app  # Monta o diretório local no container
+      - .:/app  
     environment:
-      - FLASK_ENV=development  # Configura o ambiente para desenvolvimento
-      - MQTT_BROKER=BrokerEstacao  # Nome do serviço Mosquitto como variáveis de ambiente
-    command: python app.py  # Executa a aplicação
+      - FLASK_ENV=development  
+      - MQTT_BROKER=BrokerEstacao  
+    command: python app.py  
+
   mysql:
-    image: mysql:8.0  # Imagem oficial do MySQL
-    container_name: mysql-database  # Nome do container
+    image: mysql:8.0  
+    container_name: mysql-database  
     environment:
       MYSQL_ROOT_PASSWORD: example  # Senha root do MySQL
       MYSQL_DATABASE: weather_data  # Nome do banco de dados
     ports:
-      - "3306:3306"  # Porta para acesso externo
+      - "3306:3306"  
     volumes:
       - mysql_data:/var/lib/mysql  # Persistência de dados
       - ./tabela.sql:/docker-entrypoint-initdb.d/tabela.sql  # Script para criar a tabela
+
+  mosquitto:
+    image: eclipse-mosquitto:latest  # Imagem oficial do Mosquitto
+    container_name: mosquitto-broker  # Nome do container
+    ports:
+      - "1883:1883"  # Porta MQTT
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf  # Configuração do Mosquitto
+      - ./data:/mosquitto/data  # Persistência de dados
+      - ./log:/mosquitto/log  # Persistência de logs
+    restart: always  # Reiniciar automaticamente
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
