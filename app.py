@@ -176,7 +176,7 @@ def dashboard():
         now = datetime.now(timezone.utc)
         local_now = now - timedelta(hours=3) # Ajuste para UTC-3
         start_of_day = datetime(local_now.year, local_now.month, local_now.day, tzinfo=timezone.utc)
-        start_timestamp = int(start_of_day.timestamp())
+        start_timestamp = int(start_of_day.timestamp()) + 3 * 3600
         end_timestamp = int((start_of_day + timedelta(days=1)).timestamp()) + 3 * 3600
         
         # Buscar apenas os dados do dia atual ajustado para UTC-3
@@ -230,7 +230,7 @@ def plot_data():
         now = datetime.now(timezone.utc)
         local_now = now - timedelta(hours=3) # Ajuste para UTC-3
         start_of_day = datetime(local_now.year, local_now.month, local_now.day, )
-        start_timestamp = int(start_of_day.timestamp())
+        start_timestamp = int(start_of_day.timestamp()) + 3 * 3600
         end_timestamp = int((start_of_day + timedelta(days=1)).timestamp()) + 3 * 3600
 
         
