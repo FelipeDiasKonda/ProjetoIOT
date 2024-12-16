@@ -1,14 +1,36 @@
-version: '3.8'
-
 services:
   flask_app:
     build:
-      context: .
+      context: .  # Diretório atual
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"  # Mapeia a porta 5000 do container para a máquina local
+      - "80:80"  # Porta 80 do host mapeada para o container
     volumes:
-      - .:/app       # Monta o diretório local no container
+      - .:/app  # Monta o diretório local no container
     environment:
-      - FLASK_ENV=development  # Configura o ambiente para desenvolvimento
-    command: python app.py     # Executa a aplicação
+      - FLASK_ENV=development
+      - MQTT_BROKER=BrokerEstacao
+    command: python app.py  # Comando para iniciar a aplicação Flask
+    depends_on:
+      - mysql  # Garantir que o MySQL seja iniciado antes do Flask
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-database
+    environment:
+      MYSQL_ROOT_PASSWORD: example  # Senha do root
+      MYSQL_DATABASE: weather_data  # Banco de dados inicial
+    ports:
+      - "3306:3306"  # Porta do MySQL para acesso externo
+    volumes:
+      - mysql_data:/var/lib/mysql  # Volume persistente para os dados
+      - ./tabela.sql:/docker-entrypoint-initdb.d/tabela.sql  # Script SQL de inicialização
+    deploy:
+      resources:
+        limits:
+          memory: 512M  # Limitar uso de memória para evitar estouro
+    restart: unless-stopped  # Reinicia o container automaticamente se ele falhar
+
+volumes:
+  mysql_data:
+    driver: local

@@ -64,8 +64,6 @@
             cursor: pointer;
             text-decoration: none;
             transition: background-color 0.3s ease;
-            position: absolute;
-            left: 20px;
         }
 
         .back-btn:hover {
@@ -121,37 +119,6 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
-        /* TABELA DE HISTÓRICO */
-        .dados-tabela {
-            margin-top: 40px;
-        }
-
-        .dados-tabela table {
-            width: 100%;
-            border-collapse: collapse;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .dados-tabela th, .dados-tabela td {
-            text-align: center;
-            padding: 15px;
-            color: #fff;
-        }
-
-        .dados-tabela th {
-            background: rgba(20, 27, 43, 0.9);
-            color: #ffd700;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .dados-tabela tr:nth-child(even) {
-            background: rgba(20, 27, 43, 0.7);
-        }
-
         /* ANIMAÇÃO */
         @keyframes fadeIn {
             from {
@@ -164,13 +131,119 @@
             }
         }
 
+        /* Estilos para o botão deslizante */
+        .switch {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* Adiciona espaço entre os elementos */
+        }
+
+        .switch input {
+            display: none;
+        }
+
+        .slider {
+            width: 50px;
+            height: 25px;
+            background-color: #ccc;
+            border-radius: 25px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            width: 21px;
+            height: 21px;
+            background-color: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.2s;
+        }
+
+        input:checked + .slider {
+            background-color: #02d7fd;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(25px);
+        }
+
+        .switch span {
+            font-size: 1em;
+            color: #fff;
+        }
+
+        /* MEDIA QUERIES PARA RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .container {
+                padding: 15px;
+                margin-top: 80px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .metric-box {
+                flex: 1 1 100%;
+            }
+
+            button {
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .container {
+                margin-top: 70px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .metrics {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .metric-box {
+                font-size: 0.9em;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            
+        }
     </style>
 </head>
 <body>
     <header>
         <a href="/" class="back-btn">Voltar</a>
         <div class="header-content">
-            <h2>Temperaturas PUC</h2>
+            <h2>Temperaturas</h2>
+        </div>
+        <div class="switch">
+            <span>°C</span>
+            <label class="switch">
+                <input type="checkbox" id="toggleTemp" onclick="toggleTemperature()">
+                <span class="slider"></span>
+            </label>
+            <span>°F</span>
         </div>
     </header>
 
@@ -178,49 +251,121 @@
         <div class="dados-container">
             <div class="dados-item">
                 <h3>Última Temperatura</h3>
-                <p>{{ "%.2f"|format(last_temperature) }} °C</p>
-
+                <p class="temperature" data-temp="{{ last_temperature }}">{{ "%.2f"|format(last_temperature) }} °C</p>
             </div>
             <div class="dados-item">
                 <h3>Temperatura Média</h3>
-                <p>{{ "%.2f"|format(average_temperature) }} °C</p>
+                <p class="temperature" data-temp="{{ average_temperature }}">{{ "%.2f"|format(average_temperature) }} °C</p>
             </div>
             <div class="dados-item">
                 <h3>Temperatura Máxima</h3>
-                <p>{{ "%.2f"|format(max_temperature) }} °C</p>
+                <p class="temperature" data-temp="{{ max_temperature }}">{{ "%.2f"|format(max_temperature) }} °C</p>
             </div>
             <div class="dados-item">
                 <h3>Temperatura Mínima</h3>
-                <p>{{ "%.2f"|format(min_temperature) }} °C</p>
+                <p class="temperature" data-temp="{{ min_temperature }}">{{ "%.2f"|format(min_temperature) }} °C</p>
             </div>
         </div>
-
-        {% if image_data %}
-        <div class="grafico">
-            <h2 style="text-align: center; color: #ffd700; margin: 40px 0;">Gráfico de Temperaturas</h2>
-            <img src="data:image/png;base64,{{ image_data }}" alt="Gráfico de Temperatura" style="width: 100%; border-radius: 20px; box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);">
-        </div>
-        {% endif %}
-
-        <div class="dados-tabela">
-            <h3 style="text-align: center; color: #ffd700; margin-bottom: 20px;">Histórico de Temperaturas</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Temperatura (°C)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in temperature_data %}
-                    <tr>
-                        <td>{{ data.timestamp }}</td>
-                        <td>{{ "%.2f"|format(data.value) }} °C</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
     </div>
+
+    <div class="container">
+        <div class="graph-container">
+          <div class="graph-item">
+            <h3>Variação de Temperatura do dia</h3>
+            <canvas id="tempChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function toggleTemperature() {
+            const toggle = document.getElementById("toggleTemp");
+            const tempElements = document.querySelectorAll(".temperature");
+
+            tempElements.forEach((element) => {
+                let temp = parseFloat(element.getAttribute("data-temp"));
+
+                if (toggle.checked) {
+                    // Convert to Fahrenheit
+                    temp = (temp * 9) / 5 + 32;
+                    element.textContent = temp.toFixed(1) + " °F";
+                } else {
+                    // Convert to Celsius
+                    temp = ((temp - 32) * 5) / 9;
+                    element.textContent = temp.toFixed(1) + " °C";
+                }
+
+                // Atualizar o atributo data-temp para o novo valor
+                element.setAttribute("data-temp", temp.toFixed(1));
+            });
+        }
+
+        const sensorData = JSON.parse('{{ sensor_data|tojson|safe }}');
+
+        const climateCtx = document.getElementById('tempChart').getContext('2d');
+        new Chart(climateCtx, {
+          type: 'line',
+          data: {
+            labels: sensorData.timestamps,
+            datasets: [
+              {
+                label: 'Temperatura (°C)',
+                data: sensorData.temperature,
+                borderColor: 'rgba(0, 123, 255, 1)', // Azul
+                backgroundColor: 'rgba(0, 123, 255, 0.2)', // Azul translúcido
+                borderWidth: 2,
+                fill: true
+              },
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                position: 'top'
+              },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#000',
+                bodyColor: '#000'
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: false,
+                ticks: {
+                  color: '#fff'
+                },
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                }
+              },
+              x: {
+                ticks: {
+                  color: '#fff'
+                },
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                }
+              }
+            },
+            layout: {
+              padding: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10
+              }
+            },
+            elements: {
+              line: {
+                backgroundColor: '#fff' // Fundo branco para a linha do gráfico
+              }
+            }
+          }
+        });
+    </script>
 </body>
 </html>
