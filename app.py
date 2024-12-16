@@ -275,25 +275,17 @@ def plot_data():
     max_temperature = max(values)
     min_temperature = min(values)
 
-    # Criar o gráfico
-    plt.figure(figsize=(10, 5))
-    plt.plot(timestamps, values, marker='o', linestyle='-', color='b')
-    plt.xlabel('Horário (UTC-3)')
-    plt.ylabel('Temperatura (°C)')
-    plt.title('Variação de Temperatura - Hoje')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-
-    # Salvar o gráfico em um buffer de memória
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    image_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    buf.close()
+    sensor_data = {"temperature": [], "timestamps":[]}
+    for row in data:
+        timestamp = row["timestamp"]
+        if timestamp:
+            formatted_time = time.strftime('%H:%M', time.localtime(timestamp - 3 * 3600))
+            sensor_data["timestamps"].append(formatted_time)
+        sensor_data["temperature"].append(row["temperature"])
 
     # Retornar a imagem e dados para o frontend
     return render_template('temp.html',
-                           image_data=image_base64,
+                           sensor_data = sensor_data,
                            last_temperature=last_temperature,
                            average_temperature=average_temperature,
                            max_temperature=max_temperature,

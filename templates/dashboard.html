@@ -99,11 +99,9 @@
       }
 
       .graph-item {
-        background: rgb(170, 170, 170);
+        background: rgba(170, 170, 170, 0);
         border-radius: 15px;
         padding: 25px;
-        transition: transform 0.3s, box-shadow 0.3s ease-in-out;
-        box-shadow: 0 4px 10px rgb(170, 170, 170);
         position: relative;
         cursor: pointer;
         width: 100%;
@@ -124,42 +122,7 @@
         letter-spacing: 1px;
       }
 
-      .graph-item:hover {
-        transform: scale(1.05);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-      }
 
-      /* ANIMAÇÕES */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      /* EFEITO DE BORDAS FUTURISTAS */
-      .graph-item::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(45deg, #00b4d8, #ff5f6d);
-        opacity: 0.3;
-        border-radius: 15px;
-        z-index: -1;
-        transform: scale(0.95);
-        transition: transform 0.3s ease-in-out;
-      }
-
-      .graph-item:hover::before {
-        transform: scale(1);
-      }
 
       @media (max-width: 768px) {
         .container {
@@ -233,9 +196,9 @@
               position: 'top'
             },
             tooltip: {
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              titleColor: '#000',
-              bodyColor: '#000'
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              titleColor: '#fff',
+              bodyColor: '#fff'
             }
           },
           scales: {
@@ -244,7 +207,7 @@
             },
             x: {
               ticks: {
-                color: '#000'
+                color: '#fff'
               },
               grid: {
                 color: 'rgba(255, 255, 255, 0.1)'
@@ -252,7 +215,7 @@
             },
             y: {
               ticks: {
-                color: '#001'
+                color: '#fff'
               },
               grid: {
                 color: 'rgba(255, 255, 255, 0.1)'

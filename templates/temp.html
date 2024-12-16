@@ -194,13 +194,82 @@
                 <p>{{ "%.2f"|format(min_temperature) }} °C</p>
             </div>
         </div>
-
-        {% if image_data %}
-        <div class="grafico">
-            <h2 style="text-align: center; color: #ffd700; margin: 40px 0;">Gráfico de Temperaturas</h2>
-            <img src="data:image/png;base64,{{ image_data }}" alt="Gráfico de Temperatura" style="width: 100%; border-radius: 20px; box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);">
-        </div>
-        {% endif %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </div>
+    <div class="container">
+        <div class="graph-container">
+          <div class="graph-item">
+            <h3>Variação de Temperatura do dia</h3>
+            <canvas id="tempChart"></canvas>
+          </div>
+        </div>
+      </div>
+    <script>
+        const sensorData = JSON.parse('{{ sensor_data|tojson|safe }}');
+
+        const climateCtx = document.getElementById('tempChart').getContext('2d');
+        new Chart(climateCtx, {
+          type: 'line',
+          data: {
+            labels: sensorData.timestamps,
+            datasets: [
+              {
+                label: 'Temperatura (°C)',
+                data: sensorData.temperature,
+                borderColor: 'rgba(0, 123, 255, 1)', // Azul
+                backgroundColor: 'rgba(0, 123, 255, 0.2)', // Azul translúcido
+                borderWidth: 2,
+                fill: true
+              },
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+              legend: {
+                position: 'top'
+              },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#000',
+                bodyColor: '#000'
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: false,
+                ticks: {
+                  color: '#fff'
+                },
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                }
+              },
+              x: {
+                ticks: {
+                  color: '#fff'
+                },
+                grid: {
+                  color: 'rgba(255, 255, 255, 0.1)'
+                }
+              }
+            },
+            layout: {
+              padding: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10
+              }
+            },
+            elements: {
+              line: {
+                backgroundColor: '#fff' // Fundo branco para a linha do gráfico
+              }
+            }
+          }
+        });
+      </script>
 </body>
 </html>
