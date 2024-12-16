@@ -176,6 +176,57 @@
             font-size: 1em;
             color: #fff;
         }
+
+        /* MEDIA QUERIES PARA RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+
+            .container {
+                padding: 15px;
+                margin-top: 80px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .metric-box {
+                flex: 1 1 100%;
+            }
+
+            button {
+                width: 90%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5em;
+            }
+
+            .container {
+                margin-top: 70px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            .metrics {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .metric-box {
+                font-size: 0.9em;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
