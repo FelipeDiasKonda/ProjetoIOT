@@ -2,6 +2,8 @@ import time
 import json
 import paho.mqtt.client as mqtt
 import mysql.connector
+from datetime import datetime, timedelta, timezone
+
 
 
 def save_to_mysql(data):
@@ -55,6 +57,8 @@ def save_to_mysql(data):
         if connection.is_connected():
             cursor.close()
             connection.close()
+
+
 
 def on_connect(client, userdata, flags, rc):
     """Callback chamada ao conectar ao broker MQTT."""

@@ -201,26 +201,6 @@
             <img src="data:image/png;base64,{{ image_data }}" alt="Gráfico de Temperatura" style="width: 100%; border-radius: 20px; box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4);">
         </div>
         {% endif %}
-
-        <div class="dados-tabela">
-            <h3 style="text-align: center; color: #ffd700; margin-bottom: 20px;">Histórico de Temperaturas</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Temperatura (°C)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for data in temperature_data %}
-                    <tr>
-                        <td>{{ data.timestamp }}</td>
-                        <td>{{ "%.2f"|format(data.value) }} °C</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
     </div>
 </body>
 </html>
