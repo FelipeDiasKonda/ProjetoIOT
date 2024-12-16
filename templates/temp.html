@@ -226,6 +226,15 @@
             button {
                 width: 100%;
             }
+
+            .graph-item h3 {
+          font-size: 1em;
+        }
+
+        .graph-item {
+            height: 40vh; /* Reduz a altura para telas menores */
+            max-height: 40vh;
+        }
         }
     </style>
 </head>
@@ -319,43 +328,34 @@
           },
           options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false, // Desativa a proporção fixa
             plugins: {
-              legend: {
-                position: 'top'
-              },
-              tooltip: {
-                backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                titleColor: '#000',
-                bodyColor: '#000'
-              }
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 12 }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff'
+                }
             },
             scales: {
-              y: {
-                beginAtZero: false,
-                ticks: {
-                  color: '#fff'
+                x: {
+                    ticks: { color: '#fff', maxRotation: 45, minRotation: 45 },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
                 },
-                grid: {
-                  color: 'rgba(255, 255, 255, 0.1)'
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
                 }
-              },
-              x: {
-                ticks: {
-                  color: '#fff'
-                },
-                grid: {
-                  color: 'rgba(255, 255, 255, 0.1)'
-                }
-              }
             },
             layout: {
-              padding: {
-                left: 10,
-                right: 10,
-                top: 10,
-                bottom: 10
-              }
+                padding: { left: 10, right: 10, top: 10, bottom: 10 }
             },
             elements: {
               line: {

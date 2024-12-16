@@ -67,9 +67,9 @@ def get_temperature_status(temperature):
         return "Frio intenso"
     elif temperature < 20:
         return "Clima frio"
-    elif temperature < 30:
+    elif temperature < 25:
         return "Clima agradável"
-    elif temperature < 40:
+    elif temperature < 30:
         return "Clima quente"
     else:
         return "Calor extremo"
