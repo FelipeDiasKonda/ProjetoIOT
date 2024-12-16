@@ -1,17 +1,20 @@
-# Use a imagem base do Python
+# Use uma imagem base leve
 FROM python:3.9-slim
 
 # Configure o diretório de trabalho
 WORKDIR /app
 
-# Copie apenas o arquivo de dependências primeiro (para melhor cache de camadas)
+# Copie o arquivo de dependências
 COPY requirements.txt .
 
 # Instale as dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copie o restante dos arquivos (opcional para produção, desnecessário em dev)
-# COPY . .
+# Copie os arquivos da aplicação
+COPY . .  
+# Exponha a porta usada pelo Flask
+EXPOSE 80
 
-# Configure o ponto de entrada para a aplicação
+# Configure o comando padrão
 CMD ["python", "app.py"]
+

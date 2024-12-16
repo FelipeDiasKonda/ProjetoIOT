@@ -1,41 +1,54 @@
-version: '3.8'
-
 services:
   flask_app:
     build:
       context: .  # Diretório atual
       dockerfile: Dockerfile
     ports:
-      - "80:80"  # Mapeia a porta 5000 do container para a máquina local
+      - "80:80"  # Porta 80 do host mapeada para o container
     volumes:
       - .:/app  # Monta o diretório local no container
     environment:
-      - FLASK_ENV=development  # Configura o ambiente para desenvolvimento
-      - MQTT_BROKER=BrokerEstacao  # Nome do serviço Mosquitto como variáveis de ambiente
-    command: python app.py  # Executa a aplicação
+      - FLASK_ENV=development
+      - MQTT_BROKER=BrokerEstacao
+    command: python app.py  # Comando para iniciar a aplicação Flask
+    depends_on:
+      - mysql  # Garantir que o MySQL seja iniciado antes do Flask
+      - mqtt  # (Se necessário) Adicione aqui o serviço de MQTT, se usado
+
   mysql:
-    image: mysql:8.0  # Imagem oficial do MySQL
-    container_name: mysql-database  # Nome do container
+    image: mysql:8.0
+    container_name: mysql-database
     environment:
-      MYSQL_ROOT_PASSWORD: example  # Senha root do MySQL
-      MYSQL_DATABASE: weather_data  # Nome do banco de dados
+      MYSQL_ROOT_PASSWORD: example  # Senha do root
+      MYSQL_DATABASE: weather_data  # Banco de dados inicial
     ports:
-      - "3306:3306"  # Porta para acesso externo
+      - "3306:3306"  # Porta do MySQL para acesso externo
     volumes:
-      - mysql_data:/var/lib/mysql  # Persistência de dados
-      - ./tabela.sql:/docker-entrypoint-initdb.d/tabela.sql  # Script para criar a tabela
+      - mysql_data:/var/lib/mysql  # Volume persistente para os dados
+      - ./tabela.sql:/docker-entrypoint-initdb.d/tabela.sql  # Script SQL de inicialização
+    deploy:
+      resources:
+        limits:
+          memory: 512M  # Limitar uso de memória para evitar estouro
+    restart: unless-stopped  # Reinicia o container automaticamente se ele falhar
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
-    container_name: phpmyadminN 
+    container_name: phpmyadmin
     environment:
-      PMA_HOST: mysql  # Nome do serviço MySQL no Docker Compose
+      PMA_HOST: mysql  # Nome do serviço MySQL
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: example  # Deve ser igual ao configurado no MySQL
+      MYSQL_ROOT_PASSWORD: example
     ports:
-      - "8000:80"  # Porta para acessar o phpMyAdmin no navegador
+      - "8000:80"  # Porta para acessar o phpMyAdmin
     depends_on:
-      - mysql
+      - mysql  # Aguarda o MySQL estar pronto
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "mysql", "-u", "root", "-pexample"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   mysql_data:
-    driver: local  # Volume para persistência do banco de dados
+    driver: local
