@@ -8,7 +8,7 @@
 O **Clima PUC** é uma aplicação simples e eficiente para conferir informações climáticas em tempo real relacionadas à **PUC Campinas**. A ferramenta fornece dados essenciais como:  
 - 🌡️ **Temperatura**  
 - 💧 **Umidade**  
-- 💨 **Velocidade do Vento**  
+- 💨 **Direção do Vento**  
 - ☀️ **Radiação Solar**  
 - 🌧️ **Nível de Chuva**  
 
@@ -73,8 +73,8 @@ A interface é responsiva e conta com um design moderno, exibindo as seguintes m
 
 | 🔹 Métrica               | 🔹 Descrição                         |
 |--------------------------|-------------------------------------|
-| 🌡️ **Temperatura**      | Monitoramento em °C                 |
-| 💨 **Velocidade do Vento** | Informações sobre a velocidade     |
+| 🌡️ **Temperatura**      | Monitoramento em °C ou °F                 |
+| 💨 **Direção do Vento** | Informações sobre a direção     |
 | 💧 **Umidade**           | Nível atual de umidade do ar        |
 | ☀️ **Radiação Solar**    | Intensidade de radiação (W/m²)      |
 | 🌧️ **Nível de Chuva**    | Detecção de precipitação (mm)       |
