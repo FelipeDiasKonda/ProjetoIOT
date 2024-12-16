@@ -13,23 +13,6 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
-    <header>
-      <div class="header-content">
-        <h2>Dashboard de Sensores</h2>
-        <div class="switch">
-          <span>C</span>
-          <label class="switch">
-            <input
-              type="checkbox"
-              id="toggleTemp"
-              onclick="toggleTemperature()"
-            />
-            <span class="slider"></span>
-          </label>
-          <span>F</span>
-        </div>
-      </div>
-    </header>
 
     <style>
       .arrow {
@@ -193,57 +176,75 @@
 
       /* Estilos para o botão deslizante */
       .switch {
-        position: absolute;
-        top: 50%;
-        right: 20px;
-        transform: translateY(-50%);
-        display: flex;
-        align-items: center;
+          position: absolute;
+          top: 20px; /* Distância do topo */
+          right: 20px; /* Distância da direita */
+          display: flex;
+          align-items: center; /* Alinha os elementos verticalmente */
+          gap: 10px; /* Espaço entre Celsius, botão e Fahrenheit */
       }
 
-      .switch input {
-        display: none;
+      .switch label {
+          display: inline-flex;
+          align-items: center; /* Alinha o botão verticalmente */
       }
 
       .slider {
-        width: 50px;
-        height: 25px;
-        background-color: #ccc;
-        border-radius: 25px;
-        position: relative;
-        cursor: pointer;
-        transition: background-color 0.2s;
+          width: 50px;
+          height: 25px;
+          background-color: #ccc;
+          border-radius: 25px;
+          position: relative;
+          cursor: pointer;
+          transition: background-color 0.2s;
       }
 
       .slider:before {
-        content: "";
-        position: absolute;
-        width: 21px;
-        height: 21px;
-        background-color: #fff;
-        border-radius: 50%;
-        top: 2px;
-        left: 2px;
-        transition: transform 0.2s;
+          content: "";
+          position: absolute;
+          width: 21px;
+          height: 21px;
+          background-color: #fff;
+          border-radius: 50%;
+          top: 2px;
+          left: 2px;
+          transition: transform 0.2s;
+      }
+
+      input {
+          display: none; /* Esconde o input padrão */
       }
 
       input:checked + .slider {
-        background-color: #02d7fd;
+          background-color: #02d7fd;
       }
 
       input:checked + .slider:before {
-        transform: translateX(25px);
+          transform: translateX(25px); /* Movimenta o botão */
       }
 
-      /* Adiciona os rótulos C e F */
-      .switch span {
-        font-size: 1em;
-        color: #fff;
-        margin: 0 10px;
-      }
     </style>
   </head>
   <body>
+
+    <header>
+      <div class="header-content">
+        <h2>Dashboard de Sensores</h2>
+        <div class="switch">
+          <span>Celsius</span>
+          <label>
+            <input
+              type="checkbox"
+              id="toggleTemp"
+              onclick="toggleTemperature()"
+            />
+            <span class="slider"></span>
+          </label>
+          <span>Fahrenheit</span>
+        </div>
+      </div>
+    </header>    
+
     <div class="container">
       <img
         src="{{ url_for('static', filename='logo_puc.png') }}"
@@ -256,7 +257,7 @@
       <div class="metrics">
         <div class="metric-box" id="temperature-box">
           <h2>Temperatura <i class="fas fa-thermometer-half"></i></h2>
-          <p id="temperature">{{ "%.f"|format(temperature) }}°C</p>
+          <p id="temperature" class="temperature" data-temp="{{ temperature }}">{{ "%.f"|format(temperature) }}°C</p>
           <p id="temperature-status">{{ temperature_status }}</p>
         </div>
         <div class="metric-box" id="humidity-box">
@@ -339,7 +340,7 @@
         const tempElements = document.querySelectorAll(".temperature");
 
         tempElements.forEach((element) => {
-          let temp = parseFloat(element.textContent);
+          let temp = parseFloat(element.getAttribute("data-temp"));
 
           if (toggle.checked) {
             // Convert to Fahrenheit
@@ -348,8 +349,11 @@
           } else {
             // Convert to Celsius
             temp = ((temp - 32) * 5) / 9;
-            element.textContent = temp.toFixed(1) + " °C";
+            element.textContent = Math.round(temp) + " °C";
           }
+
+          // Atualizar o atributo data-temp para o novo valor
+          element.setAttribute("data-temp", temp.toFixed(1));
         });
       }
 
