@@ -13,8 +13,6 @@ services:
     command: python app.py  # Comando para iniciar a aplicação Flask
     depends_on:
       - mysql  # Garantir que o MySQL seja iniciado antes do Flask
-      - mqtt  # (Se necessário) Adicione aqui o serviço de MQTT, se usado
-
   mysql:
     image: mysql:8.0
     container_name: mysql-database
