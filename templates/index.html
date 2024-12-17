@@ -57,7 +57,7 @@
 
       body {
         font-family: "Roboto", sans-serif;
-        background: linear-gradient(135deg, #1f2a44, #4e6e88);
+        background: linear-gradient(135deg, #1f2a44, #24304a);
         color: #fff;
         margin: 0;
         height: 100vh;
@@ -72,7 +72,7 @@
         left: 0;
         width: 100%;
         z-index: 1000;
-        padding: 20px;
+        padding: 2px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         display: flex;
         align-items: center;
@@ -100,7 +100,7 @@
         padding: 40px;
         background: rgba(20, 27, 43, 0.85);
         border-radius: 30px;
-        width: 60%;
+        width: 92%;
         height: auto;
         max-width: 1300px;
         box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
@@ -152,9 +152,10 @@
         cursor: pointer;
         font-size: 1.1em;
         transition: transform 0.3s, box-shadow 0.3s;
-        margin: 10px;
+        margin: 0px;
+        margin-bottom: 12px; /* Espaçamento entre os botões */
         text-transform: uppercase;
-        width: 80%;
+        width: 100%;
       }
 
       button:hover {
@@ -336,11 +337,20 @@
         </div>
         <div class="metric-box" id="wind-direction-box">
           <h2>
-            Direção do Vento
+            Direção e Velocidade do Vento
             <i class="fas fa-wind"></i>
           </h2>
-          <p id="wind-direction">{{ wind_direction }}</p>
-          <div class="arrow {{ wind_icon_class }}"></div>
+          <div style="display: flex; align-items: center; justify-content: center;">
+            <div style="flex: 1; text-align: center;">
+              <div class="arrow {{ wind_icon_class }}"></div>
+              <p id="wind-direction">{{ wind_direction }}</p>
+            </div>
+            <div style="width: 2px; height: 50px; background-color: #fff; margin: 0 20px;"></div>
+            <div style="flex: 1; text-align: center;">
+              <p id="wind-speed">{{ "%.2f"|format(wind_speed_kmh) }} km/h</p>
+              <p id="wind-speed-status">{{ wind_speed_status }}</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -381,6 +391,10 @@
             document.getElementById("uv-status").textContent = data.uv_status;
             document.getElementById("wind-direction").textContent =
               data.wind_direction;
+            document.getElementById("wind-speed").textContent =
+              data.wind_speed_kmh + " km/h";
+            document.getElementById("wind-speed-status").textContent =
+              data.wind_speed_status;
 
             // Alterando ícones dinamicamente
             changeIcons(data);

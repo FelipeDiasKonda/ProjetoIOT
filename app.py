@@ -38,6 +38,27 @@ def get_rain_status(current_rain_level, previous_rain_level):
         return "Chuviscando"
     else:
         return "Chovendo"
+    
+def get_wind_speed_status(wind_speed_kmh):
+    """Determina o status da velocidade do vento em km/h baseado na Escala Modificada de Beaufort."""
+    if wind_speed_kmh == 0:
+        return "Sem vento"
+    elif wind_speed_kmh < 12.0:
+        return "Brisa leve"
+    elif wind_speed_kmh < 20.0:
+        return "Vento fresco"
+    elif wind_speed_kmh < 41.0:
+        return "Vento moderado"
+    elif wind_speed_kmh < 62.0:
+        return "Vento forte"
+    elif wind_speed_kmh < 75.0:
+        return "Vento muito forte"
+    elif wind_speed_kmh < 103.0:
+        return "Vendaval severo"
+    elif wind_speed_kmh < 120.0:
+        return "Tempestade"
+    else:
+        return "Ciclone tropical"
 
 def get_uv_status(uv_index):
     """Determina o status da radiação UV."""
@@ -122,7 +143,10 @@ def index():
             temperature=0,
             uv_index=0,
             humidity=0,
-            rain_level=0
+            rain_level=0,
+            average_wind_speed=0,  # Adicionando a variável average_wind_speed com valor padrão
+            wind_speed_status="N/A",  # Adicionando a variável wind_speed_status com valor padrão
+            wind_speed_kmh=0  # Adicionando a variável wind_speed_kmh com valor padrão
         )
 
     # Dados dos sensores atuais
@@ -131,6 +155,7 @@ def index():
     humidity = float(current_data.get('humidity', 0))
     current_rain_level = float(current_data.get('rain_level', 0))
     temperature = float(current_data.get('temperature', 0))
+    average_wind_speed = float(current_data.get('average_wind_speed', 0))  # Obtendo a velocidade média do vento
 
     previous_rain_level = float(previous_data.get('rain_level', 0)) if previous_data else current_rain_level
 
@@ -139,22 +164,26 @@ def index():
 
     # Mensagens baseadas nos valores
     rain_status = get_rain_status(current_rain_level, previous_rain_level)
-    uv_status = get_uv_status(uv_index)
-    humidity_status = get_humidity_status(humidity)
-    temperature_status = get_temperature_status(temperature)
+    wind_speed_status = get_wind_speed_status(average_wind_speed)  # Obtendo o status da velocidade do vento
+
+    # Converter a velocidade do vento de m/s para km/h
+    average_wind_speed_kmh = average_wind_speed * 3.6
 
     return render_template(
         'index.html',
         wind_direction=wind_direction,
         wind_icon_class=wind_icon_class,
-        uv_status=uv_status,
-        humidity_status=humidity_status,
+        uv_status=get_uv_status(uv_index),
+        humidity_status=get_humidity_status(humidity),
         rain_status=rain_status,
-        temperature_status=temperature_status,
+        temperature_status=get_temperature_status(temperature),
         temperature=temperature,
         uv_index=uv_index,
         humidity=humidity,
-        rain_level=current_rain_level
+        rain_level=current_rain_level,
+        average_wind_speed=average_wind_speed_kmh,  # Passando a variável convertida para o template
+        wind_speed_status=wind_speed_status,  # Passando a variável wind_speed_status para o template
+        wind_speed_kmh=average_wind_speed_kmh  # Passando a variável wind_speed_kmh para o template
     )
 
 
@@ -181,7 +210,7 @@ def dashboard():
         
         # Buscar apenas os dados do dia atual ajustado para UTC-3
         query = """
-            SELECT timestamp, temperature, humidity, rain_level 
+            SELECT timestamp, temperature, humidity, rain_level, average_wind_speed
             FROM sensor_data 
             WHERE temperature IS NOT NULL 
             AND timestamp BETWEEN %s AND %s
@@ -200,7 +229,7 @@ def dashboard():
     if not data:
         return render_template('dashboard.html', message="Nenhum dado disponível no momento.")
 
-    sensor_data = {"temperature": [], "humidity": [], "rain_level": [], "timestamps": []}
+    sensor_data = {"temperature": [], "humidity": [], "rain_level": [], "wind_speed": [],"timestamps": []}
     for row in data:
         timestamp = row["timestamp"]
         if timestamp:
@@ -209,6 +238,7 @@ def dashboard():
         sensor_data["temperature"].append(row["temperature"])
         sensor_data["humidity"].append(row["humidity"])
         sensor_data["rain_level"].append(row["rain_level"])
+        sensor_data["wind_speed"].append(row["average_wind_speed"] * 3.6)  # Adicionando a velocidade média do vento
 
     return render_template('dashboard.html', sensor_data=sensor_data)
 
