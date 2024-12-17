@@ -229,7 +229,7 @@ def dashboard():
     if not data:
         return render_template('dashboard.html', message="Nenhum dado disponível no momento.")
 
-    sensor_data = {"temperature": [], "humidity": [], "rain_level": [], "average_wind_speed": [],"timestamps": []}
+    sensor_data = {"temperature": [], "humidity": [], "rain_level": [], "wind_speed": [],"timestamps": []}
     for row in data:
         timestamp = row["timestamp"]
         if timestamp:
@@ -238,7 +238,7 @@ def dashboard():
         sensor_data["temperature"].append(row["temperature"])
         sensor_data["humidity"].append(row["humidity"])
         sensor_data["rain_level"].append(row["rain_level"])
-        sensor_data["average_wind_speed"].append(row["average_wind_speed"])  # Adicionando a velocidade média do vento
+        sensor_data["wind_speed"].append(row["average_wind_speed"] * 3.6)  # Adicionando a velocidade média do vento
 
     return render_template('dashboard.html', sensor_data=sensor_data)
 
