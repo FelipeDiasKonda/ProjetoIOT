@@ -337,11 +337,20 @@
         </div>
         <div class="metric-box" id="wind-direction-box">
           <h2>
-            Direção do Vento
+            Direção e Velocidade do Vento
             <i class="fas fa-wind"></i>
           </h2>
-          <p id="wind-direction">{{ wind_direction }}</p>
-          <div class="arrow {{ wind_icon_class }}"></div>
+          <div style="display: flex; align-items: center; justify-content: center;">
+            <div style="flex: 1; text-align: center;">
+              <div class="arrow {{ wind_icon_class }}"></div>
+              <p id="wind-direction">{{ wind_direction }}</p>
+            </div>
+            <div style="width: 2px; height: 50px; background-color: #fff; margin: 0 20px;"></div>
+            <div style="flex: 1; text-align: center;">
+              <p id="wind-speed">{{ "%.2f"|format(wind_speed_kmh) }} km/h</p>
+              <p id="wind-speed-status">{{ wind_speed_status }}</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -382,6 +391,10 @@
             document.getElementById("uv-status").textContent = data.uv_status;
             document.getElementById("wind-direction").textContent =
               data.wind_direction;
+            document.getElementById("wind-speed").textContent =
+              data.wind_speed_kmh + " km/h";
+            document.getElementById("wind-speed-status").textContent =
+              data.wind_speed_status;
 
             // Alterando ícones dinamicamente
             changeIcons(data);
