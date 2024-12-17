@@ -16,7 +16,7 @@
 
         body {
             font-family: 'Roboto', sans-serif;
-            background: linear-gradient(135deg, #1f2a44, #4e6e88);
+            background: linear-gradient(135deg, #1f2a44, #24304a);
             color: #fff;
             margin: 0;
             height: 100vh;
@@ -64,6 +64,7 @@
             cursor: pointer;
             text-decoration: none;
             transition: background-color 0.3s ease;
+            left:5px;
         }
 
         .back-btn:hover {
@@ -72,7 +73,7 @@
 
         /* CONTEÚDO PRINCIPAL */
         .container {
-            margin-top: 120px;
+            margin-top: 95px;
             padding: 40px;
             background: rgba(20, 27, 43, 0.85);
             border-radius: 30px;
@@ -85,11 +86,44 @@
             margin-right: auto;
         }
 
+        
+        .graph-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+        margin-bottom: 50px;
+      }
+
+      .graph-item {
+        background: rgba(170, 170, 170, 0);
+        border-radius: 5px;
+        padding: 25px;
+        position: relative;
+        width: 100%;
+        height: 70vh; /* Define a altura como 50% da tela */
+        max-height: 90vh; /* Garante um limite máximo */
+        }
+        
+      .graph-item canvas {
+        width: 100%;
+        height: 100%; /* Ocupa toda a altura do container */
+        border-radius: 15px;
+        transition: transform 0.3s ease-in-out;
+        }
+        .graph-item h3 {
+        color: #0199c1;
+        font-size: 1.6em;
+        margin-bottom: 15px;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+
         .dados-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 30px;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
         .dados-item {
@@ -104,7 +138,7 @@
         .dados-item h3 {
             color: #ffd700;
             font-size: 1.6em;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             font-weight: 700;
         }
 
@@ -178,6 +212,21 @@
         }
 
         /* MEDIA QUERIES PARA RESPONSIVIDADE */
+        @media (max-width: 1024px) {
+        header h1 {
+          font-size: 2.5em;
+        }
+
+        .container {
+          padding: 30px;
+        }
+
+        .graph-item h3 {
+          font-size: 1.6em;
+        }
+        
+      }
+
         @media (max-width: 768px) {
             header h1 {
                 font-size: 2em;
@@ -199,6 +248,10 @@
             button {
                 width: 90%;
             }
+            .graph-item h3 {
+          font-size: 1.2em;
+        }
+      
         }
 
         @media (max-width: 480px) {
@@ -226,7 +279,11 @@
             button {
                 width: 100%;
             }
-
+         
+            .graph-item {
+            height: 45vh; /* Reduz a altura para telas menores */
+            max-height: 50vh;
+        }
             
         }
     </style>
@@ -250,7 +307,7 @@
     <div class="container">
         <div class="dados-container">
             <div class="dados-item">
-                <h3>Última Temperatura</h3>
+                <h3>Temperatura Atual</h3>
                 <p class="temperature" data-temp="{{ last_temperature }}">{{ "%.2f"|format(last_temperature) }} °C</p>
             </div>
             <div class="dados-item">
@@ -321,15 +378,19 @@
           },
           options: {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
             plugins: {
               legend: {
-                position: 'top'
+                position: 'top',
+                labels: {
+                color: '#ffffff',
+                font: { size: 12 }
+            }
               },
               tooltip: {
                 backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                titleColor: '#000',
-                bodyColor: '#000'
+                 titleColor: '#ffffff',
+                 bodyColor: '#ffffff'
               }
             },
             scales: {
