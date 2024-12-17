@@ -9,6 +9,7 @@ O **Clima PUC** é uma aplicação simples e eficiente para conferir informaçõ
 - 🌡️ **Temperatura**  
 - 💧 **Umidade**  
 - 💨 **Direção do Vento**  
+- 💨 **Velocidade do Vento**  
 - ☀️ **Radiação Solar**  
 - 🌧️ **Nível de Chuva**  
 
@@ -73,8 +74,9 @@ A interface é responsiva e conta com um design moderno, exibindo as seguintes m
 
 | 🔹 Métrica               | 🔹 Descrição                         |
 |--------------------------|-------------------------------------|
-| 🌡️ **Temperatura**      | Monitoramento em °C ou °F                 |
-| 💨 **Direção do Vento** | Informações sobre a direção     |
+| 🌡️ **Temperatura**      | Monitoramento em °C ou °F           |
+| 💨 **Direção do Vento** | Informações sobre a direção          |
+| 💨 **Velocidade do Vento** | Intensidade do vento (km/h)         |
 | 💧 **Umidade**           | Nível atual de umidade do ar        |
 | ☀️ **Radiação Solar**    | Intensidade de radiação (W/m²)      |
 | 🌧️ **Nível de Chuva**    | Detecção de precipitação (mm)       |
