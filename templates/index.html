@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
+    <meta http-equiv="refresh" content="600">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clima PUC</title>
@@ -177,116 +178,114 @@
 
       /* Estilos para o botão deslizante */
       .switch {
-          position: absolute;
-          top: 20px; /* Distância do topo */
-          right: 20px; /* Distância da direita */
-          display: flex;
-          align-items: center; /* Alinha os elementos verticalmente */
-          gap: 10px; /* Espaço entre Celsius, botão e Fahrenheit */
+        position: absolute;
+        top: 20px; /* Distância do topo */
+        right: 20px; /* Distância da direita */
+        display: flex;
+        align-items: center; /* Alinha os elementos verticalmente */
+        gap: 10px; /* Espaço entre Celsius, botão e Fahrenheit */
       }
 
       .switch label {
-          display: inline-flex;
-          align-items: center; /* Alinha o botão verticalmente */
+        display: inline-flex;
+        align-items: center; /* Alinha o botão verticalmente */
       }
 
       .slider {
-          width: 50px;
-          height: 25px;
-          background-color: #ccc;
-          border-radius: 25px;
-          position: relative;
-          cursor: pointer;
-          transition: background-color 0.2s;
+        width: 50px;
+        height: 25px;
+        background-color: #ccc;
+        border-radius: 25px;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.2s;
       }
 
       .slider:before {
-          content: "";
-          position: absolute;
-          width: 21px;
-          height: 21px;
-          background-color: #fff;
-          border-radius: 50%;
-          top: 2px;
-          left: 2px;
-          transition: transform 0.2s;
+        content: "";
+        position: absolute;
+        width: 21px;
+        height: 21px;
+        background-color: #fff;
+        border-radius: 50%;
+        top: 2px;
+        left: 2px;
+        transition: transform 0.2s;
       }
 
       input {
-          display: none; /* Esconde o input padrão */
+        display: none; /* Esconde o input padrão */
       }
 
       input:checked + .slider {
-          background-color: #02d7fd;
+        background-color: #02d7fd;
       }
 
       input:checked + .slider:before {
-          transform: translateX(25px); /* Movimenta o botão */
+        transform: translateX(25px); /* Movimenta o botão */
       }
 
       /* MEDIA QUERIES PARA RESPONSIVIDADE */
       @media (max-width: 768px) {
-          header h1 {
-            font-size: 2em;
-          }
-
-          .container {
-            padding: 15px;
-            margin-top: 80px;
-          }
-
-          h1 {
-            font-size: 1.8em;
-          }
-
-          .metric-box {
-            flex: 1 1 100%;
-          }
-
-          button {
-            width: 90%;
-          }
+        header h1 {
+          font-size: 2em;
         }
 
-        @media (max-width: 480px) {
-          header h1 {
-            font-size: 1.5em;
-          }
+        .container {
+          padding: 15px;
+          margin-top: 80px;
+        }
 
-          .container {
-            margin-top: 70px;
-          }
+        h1 {
+          font-size: 1.8em;
+        }
 
-          h1 {
-            font-size: 1.5em;
-          }
+        .metric-box {
+          flex: 1 1 100%;
+        }
 
-          .metrics {
-            flex-direction: column;
-            gap: 10px;
-          }
-
-          .metric-box {
-            font-size: 0.9em;
-          }
-
-          button {
-            width: 100%;
-          }
+        button {
+          width: 90%;
+        }
       }
 
+      @media (max-width: 480px) {
+        header h1 {
+          font-size: 1.5em;
+        }
+
+        .container {
+          margin-top: 70px;
+        }
+
+        h1 {
+          font-size: 1.5em;
+        }
+
+        .metrics {
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .metric-box {
+          font-size: 0.9em;
+        }
+
+        button {
+          width: 100%;
+        }
+      }
     </style>
   </head>
   <body>
-
     <header>
       <div class="header-content">
         <h2>
           <img
-        src="{{ url_for('static', filename='logo_puc.png') }}"
-        alt="PUC Logo"
-        width="100"
-      />
+            src="{{ url_for('static', filename='logo_puc.png') }}"
+            alt="PUC Logo"
+            width="100"
+          />
         </h2>
 
         <div class="switch">
@@ -302,16 +301,17 @@
           <span>°F</span>
         </div>
       </div>
-    </header>    
+    </header>
 
     <div class="container">
-      
       <h1>Bem-vindo ao Clima PUC</h1>
 
       <div class="metrics">
         <div class="metric-box" id="temperature-box">
           <h2>Temperatura <i class="fas fa-thermometer-half"></i></h2>
-          <p id="temperature" class="temperature" data-temp="{{ temperature }}">{{ "%.f"|format(temperature) }}°C</p>
+          <p id="temperature" class="temperature" data-temp="{{ temperature }}">
+            {{ "%.f"|format(temperature) }}°C
+          </p>
           <p id="temperature-status">{{ temperature_status }}</p>
         </div>
         <div class="metric-box" id="humidity-box">
@@ -340,13 +340,22 @@
             Direção e Velocidade do Vento
             <i class="fas fa-wind"></i>
           </h2>
-          <div style="display: flex; align-items: center; justify-content: center;">
-            <div style="flex: 1; text-align: center;">
+          <div
+            style="display: flex; align-items: center; justify-content: center"
+          >
+            <div style="flex: 1; text-align: center">
               <div class="arrow {{ wind_icon_class }}"></div>
               <p id="wind-direction">{{ wind_direction }}</p>
             </div>
-            <div style="width: 2px; height: 50px; background-color: #fff; margin: 0 20px;"></div>
-            <div style="flex: 1; text-align: center;">
+            <div
+              style="
+                width: 2px;
+                height: 50px;
+                background-color: #fff;
+                margin: 0 20px;
+              "
+            ></div>
+            <div style="flex: 1; text-align: center">
               <p id="wind-speed">{{ "%.2f"|format(wind_speed_kmh) }} km/h</p>
               <p id="wind-speed-status">{{ wind_speed_status }}</p>
             </div>
@@ -364,8 +373,7 @@
       <div class="footer">
         <p>
           Desenvolvido por alunos da
-          <a>PUC</a>.
-          Todos os direitos reservados.
+          <a>PUC</a>. Todos os direitos reservados.
         </p>
       </div>
     </div>
@@ -375,7 +383,6 @@
         fetch("/")
           .then((response) => response.json())
           .then((data) => {
-            // Atualizando os valores de texto
             document.getElementById("temperature").textContent =
               data.temperature + "°C";
             document.getElementById("temperature-status").textContent =
@@ -396,7 +403,6 @@
             document.getElementById("wind-speed-status").textContent =
               data.wind_speed_status;
 
-            // Alterando ícones dinamicamente
             changeIcons(data);
           })
           .catch((error) => console.error("Error fetching data:", error));
@@ -476,9 +482,6 @@
         windIcon.classList.remove("fa-wind");
         windIcon.classList.add("fa-wind"); // Se necessário, pode adicionar mais lógica para vento forte
       }
-
-      setInterval(updateData, 600000);
-      // Atualizar os dados imediatamente ao carregar a página
       updateData();
     </script>
   </body>
