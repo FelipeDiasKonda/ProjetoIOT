@@ -31,17 +31,6 @@ services:
           memory: 512M  # Limitar uso de memória para evitar estouro
     restart: unless-stopped  # Reinicia o container automaticamente se ele falhar
   
-  mosquitto:
-    image: eclipse-mosquitto:latest  # Imagem oficial do Mosquitto
-    container_name: mosquitto-broker  # Nome do container
-    ports:
-      - "1883:1883"  # Porta MQTT
-    volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf  # Configuração do Mosquitto
-      - ./data:/mosquitto/data  # Persistência de dados
-      - ./log:/mosquitto/log  # Persistência de logs
-    restart: always  # Reiniciar automaticamente
-
   phpmyadmin:
     image: phpmyadmin/phpmyadmin:latest
     container_name: phpmyadminN 

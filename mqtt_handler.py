@@ -124,7 +124,7 @@ def setup_mqtt():
 
     try:
         print("Tentando conectar ao broker MQTT...")
-        client.connect("98.84.130.156", 1883, 5)  # Substitua pelo endereço do broker
+        client.connect("192.168.1.110", 1883, 5)  # Substitua pelo endereço do broker
     except Exception as e:
         print(f"Erro ao conectar ao broker MQTT: {e}")
         return None
