@@ -79,6 +79,7 @@ def on_message(client, userdata, msg):
 
         # Verificar se o payload é uma lista
         if isinstance(payload, list):
+            
             # Inicializar estrutura para dados selecionados
             data_to_save = {}
 
@@ -110,7 +111,7 @@ def on_message(client, userdata, msg):
                 save_to_mysql(data_to_save)
         else:
             # Adicione aqui um debug para entender o formato do payload
-            print("Payload recebido não é uma lista. Conteúdo:", payload)
+            print("Payload recebido não é uma lista.\n")
     except json.JSONDecodeError:
         print("Erro ao decodificar JSON:", msg.payload.decode())
     except Exception as e:
@@ -122,19 +123,29 @@ def setup_mqtt():
     client.on_connect = on_connect
     client.on_message = on_message
 
-    try:
-        print("Tentando conectar ao broker MQTT...")
-        client.connect("192.168.1.110", 1883, 5)  # Substitua pelo endereço do broker
-    except Exception as e:
-        print(f"Erro ao conectar ao broker MQTT: {e}")
-        return None
-
-    return client
+    while True:  # Loop para reconexão automática
+        try:
+            print("Tentando conectar ao broker MQTT...")
+            client.connect("192.168.1.110", 1883, keepalive=700)  
+            return client
+        except Exception as e:
+            print(f"Erro ao conectar ao broker MQTT: {e}. Tentando novamente em 5s...")
+            time.sleep(5)
+        
 
 if __name__ == '__main__':
     client = setup_mqtt()
     if client:
         print("Cliente MQTT iniciado...")
-        client.loop_forever()
+        client.loop_start()  # Mantém a conexão ativa em segundo plano
+
+        while True:
+            try:
+                time.sleep(10)  # Mantém o programa rodando
+                if not client.is_connected():
+                    print("Cliente MQTT desconectado! Tentando reconectar...")
+                    client.reconnect()
+            except Exception as e:
+                print(f"Erro inesperado: {e}")
     else:
         print("Falha ao iniciar o cliente MQTT. Verifique o broker e a conexão de rede.")
