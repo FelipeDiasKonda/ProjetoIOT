@@ -1,9 +1,5 @@
 import time
-import matplotlib
 from flask import Flask, jsonify, render_template
-import matplotlib.pyplot as plt
-import io
-import base64
 import multiprocessing
 from multiprocessing import Process 
 import mqtt_handler as mqtt_handler  # Importa o arquivo mqtt_handler.py
@@ -330,7 +326,6 @@ def run_mqtt():
         print("Erro: Cliente MQTT não foi inicializado corretamente.")
 
 if __name__ == "__main__":
-    matplotlib.use('Agg')
     multiprocessing.set_start_method('spawn', force=True)
     # Inicie o MQTT em um processo separado
     mqtt_process = Process(target=run_mqtt)
