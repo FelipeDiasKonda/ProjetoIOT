@@ -1,20 +1,24 @@
-# Use uma imagem base leve
-FROM python:3.9-slim
+FROM python:3.11-alpine
 
-# Configure o diretório de trabalho
+# Definições para evitar cache excessivo
+ENV PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
 WORKDIR /app
 
-# Copie o arquivo de dependências
+# Instalando dependências do sistema
+RUN apk add --no-cache \
+    build-base \
+    linux-headers \
+    mariadb-connector-c-dev
+
+# Instalando dependências do Python
 COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Instale as dependências
-RUN pip install --no-cache-dir -r requirements.txt
+# Copiando código da aplicação
+COPY . .
 
-# Copie os arquivos da aplicação
-COPY . .  
-# Exponha a porta usada pelo Flask
-EXPOSE 80
-
-# Configure o comando padrão
-CMD ["python", "app.py"]
-
+# Comando de execução com Gunicorn
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:80", "app:app"]

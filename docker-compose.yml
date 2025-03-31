@@ -28,21 +28,9 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M  # Limitar uso de memória para evitar estouro
+          memory: 250M  # Limitar uso de memória para evitar estouro
     restart: unless-stopped  # Reinicia o container automaticamente se ele falhar
   
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: phpmyadminN 
-    environment:
-      PMA_HOST: mysql  # Nome do serviço MySQL no Docker Compose
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: example  # Deve ser igual ao configurado no MySQL
-    ports:
-      - "8000:80"  # Porta para acessar o phpMyAdmin no navegador
-    depends_on:
-      - mysql
-
 volumes:
   mysql_data:
     driver: local
