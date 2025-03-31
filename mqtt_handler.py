@@ -126,7 +126,7 @@ def setup_mqtt():
     while True:  # Loop para reconexão automática
         try:
             print("Tentando conectar ao broker MQTT...")
-            client.connect("192.168.1.110", 1883, keepalive=700)  
+            client.connect("192.168.1.110", 1883, keepalive=1800)  
             return client
         except Exception as e:
             print(f"Erro ao conectar ao broker MQTT: {e}. Tentando novamente em 5s...")
