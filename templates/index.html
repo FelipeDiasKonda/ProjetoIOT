@@ -34,17 +34,16 @@
         position: relative;
         min-height: 100vh;
       }
-      /* SIDEBAR como elemento fixo */
+      /* SIDEBAR */
       .sidebar {
         position: fixed;
         width: 80px;
-        height: 100%;
+        height: 100vh;
         background-color: #2a3550;
         display: flex;
         flex-direction: column;
         align-items: center;
         padding: 20px 0;
-        height: 100vh;
         transition: transform 0.2s ease-in-out;
         z-index: 1000;
       }
@@ -110,18 +109,9 @@
       input[type="checkbox"]:checked + .slider:before {
         transform: translateX(25px);
       }
-      /* Botão para esconder/mostrar sidebar */
-      .sidebar-btn {
-        background: none;
-        border: none;
-        color: #fff;
-        font-size: 2em;
-        cursor: pointer;
-      }
-
       /* CONTEÚDO PRINCIPAL */
       .main-content {
-        margin-left: 80px; /* Espaço para a sidebar sempre */
+        margin-left: 80px;
         padding: 20px;
         transition: margin-left 0.3s ease-in-out;
       }
@@ -144,9 +134,8 @@
         color: #fff;
         font-size: 2em;
         cursor: pointer;
-        margin-left: 10px; /* Dá um pequeno espaçamento do lado esquerdo */
+        margin-left: 10px;
       }
-
       /* CARD DE CLIMA ATUAL */
       .current-weather {
         background-color: #2f3b58;
@@ -171,27 +160,71 @@
       .weather-icon {
         font-size: 7em;
       }
-      /* CARDS DE CONDIÇÕES */
-      .conditions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-      }
-      .condition-card {
+      /* BOX UNIFICADA DE CONDIÇÕES */
+      .conditions-box {
         background-color: #2f3b58;
         border-radius: 15px;
-        padding: 40px;
-        flex: 1 1 calc(50% - 30px);
-        min-width: 320px;
+        padding: 50px;
+        width: 100%;
+        max-width: 2000px;
+        margin: 0 auto 30px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-auto-rows: minmax(120px, auto);
+        gap: 40px;
         text-align: center;
       }
-      .condition-card h3 {
-        font-size: 3em;
-        margin-bottom: 5px;
+      /* Centraliza o quinto item */
+      .conditions-box .condition-item:nth-child(5) {
+        grid-column: 1 / span 2;
+      }
+      .condition-item h3 {
+        font-size: 3.2em;
+        margin-bottom: 10px;
         color: #ffd700;
       }
-      .condition-card p {
-        font-size: 2em;
+      .condition-item p {
+        font-size: 2.2em;
+        margin-bottom: 5px;
+      }
+      .condition-item span {
+        font-size: 1.4em;
+        color: #ccc;
+      }
+      /* Seta para direção do vento */
+      .arrow {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        border-bottom: 40px solid #fff;
+        margin: 10px auto;
+        transform-origin: center;
+      }
+      .rotate-0 {
+        transform: rotate(0deg);
+      }
+      .rotate-45 {
+        transform: rotate(45deg);
+      }
+      .rotate-90 {
+        transform: rotate(90deg);
+      }
+      .rotate-135 {
+        transform: rotate(135deg);
+      }
+      .rotate-180 {
+        transform: rotate(180deg);
+      }
+      .rotate-225 {
+        transform: rotate(225deg);
+      }
+      .rotate-270 {
+        transform: rotate(270deg);
+      }
+      .rotate-315 {
+        transform: rotate(315deg);
       }
       /* RODAPÉ */
       .footer {
@@ -208,18 +241,11 @@
         .current-weather h2 {
           font-size: 4em;
         }
-        .weather-icon {
-          font-size: 5em;
+        .condition-item h3 {
+          font-size: 2em;
         }
-        .condition-card {
-          min-width: 280px;
-          padding: 30px;
-        }
-        .condition-card h3 {
-          font-size: 1.8em;
-        }
-        .condition-card p {
-          font-size: 1.4em;
+        .condition-item p {
+          font-size: 1.6em;
         }
       }
       .sidebar.hide + .main-content {
@@ -251,7 +277,7 @@
         <a href="/temperatura"><i class="fas fa-thermometer-4"></i></a>
       </div>
       <div class="nav-item">
-        <a href="/dados"><i class="fas fa-cog"></i></a>
+        <a href="/dados"><i class="fas fa-magnifying-glass-plus"></i></a>
       </div>
     </aside>
 
@@ -277,35 +303,45 @@
         </div>
       </div>
 
-      <!-- CARDS DE CONDIÇÕES -->
-      <div class="conditions">
-        <div class="condition-card">
-          <h3>Umidade</h3>
+      <!-- BOX UNIFICADA DE CONDIÇÕES -->
+      <div class="conditions-box">
+        <!-- Umidade -->
+        <div class="condition-item">
+          <h3><i class="fas fa-tint"></i> Umidade</h3>
           <p>{{ "%.f"|format(humidity) }}%</p>
-          <p>{{ humidity_status }}</p>
+          <span>{{ humidity_status }}</span>
         </div>
-        <div class="condition-card">
-          <h3>Chuva</h3>
+        <!-- Chuva -->
+        <div class="condition-item">
+          <h3><i class="fas fa-cloud-showers-heavy"></i> Chuva</h3>
           <p>{{ "%.3f"|format(rain_level) }} mm</p>
-          <p>{{ rain_status }}</p>
+          <span>{{ rain_status }}</span>
         </div>
-        <div class="condition-card">
-          <h3>Vento</h3>
+        <!-- Velocidade do Vento -->
+        <div class="condition-item">
+          <h3><i class="fas fa-wind"></i> Velocidade do vento</h3>
           <p>{{ "%.2f"|format(wind_speed_kmh) }} km/h</p>
-          <p>{{ wind_speed_status }}</p>
-          <p>{{ wind_direction }}</p>
+          <span>{{ wind_speed_status }}</span>
         </div>
-        <div class="condition-card">
-          <h3>Radiação UV</h3>
+        <!-- Direção do Vento -->
+        <div class="condition-item">
+          <h3> Direção do vento</h3>
+          <p><div class="arrow {{ wind_icon_class }}"></div></p>
+          <span>{{ wind_direction }}</span>
+        </div>
+        <!-- Radiação UV -->
+        <div class="condition-item">
+          <h3><i class="fas fa-sun"></i> Radiação UV</h3>
           <p>{{ "%.f"|format(uv_index) }}</p>
-          <p>{{ uv_status }}</p>
+          <span>{{ uv_status }}</span>
         </div>
       </div>
 
       <!-- RODAPÉ -->
       <div class="footer">
         <p>
-          Desenvolvido por alunos da <a>PUC</a>. Todos os direitos reservados.
+          Desenvolvido por alunos da <strong>PUC</strong>. Todos os direitos
+          reservados.
         </p>
       </div>
     </div>
@@ -315,7 +351,6 @@
       function toggleTemperature() {
         const toggle = document.getElementById("toggleTemp");
         const tempElements = document.querySelectorAll(".temperature");
-
         tempElements.forEach((element) => {
           let originalTemp = parseFloat(element.getAttribute("data-temp")) || 0;
           let convertedTemp;
@@ -331,68 +366,14 @@
           element.setAttribute("data-temp", convertedTemp.toFixed(1));
         });
       }
-
       function toggleSidebarVisibility() {
         const sidebar = document.getElementById("sidebar");
         const mainContent = document.getElementById("mainContent");
-
         sidebar.classList.toggle("hide");
-
         if (sidebar.classList.contains("hide")) {
-          mainContent.style.marginLeft = "0"; // Move conteúdo para a esquerda
+          mainContent.style.marginLeft = "0";
         } else {
-          mainContent.style.marginLeft = "80px"; // Volta ao normal quando a sidebar reaparece
-        }
-        function changeIcons(data) {
-          // Alterando ícone de Temperatura
-          const temperatureBox = document.getElementById("temperature-box");
-          const temperatureIcon = temperatureBox.querySelector("i");
-          if (data.temperature > 30) {
-            temperatureIcon.classList.remove("fa-thermometer-half");
-            temperatureIcon.classList.add("fa-sun");
-          } else {
-            temperatureIcon.classList.remove("fa-sun");
-            temperatureIcon.classList.add("fa-thermometer-half");
-          }
-
-          // Alterando ícone de Humidade
-          const humidityBox = document.getElementById("humidity-box");
-          const humidityIcon = humidityBox.querySelector("i");
-          if (data.humidity < 40) {
-            humidityIcon.classList.remove("fa-tint");
-            humidityIcon.classList.add("fa-tint-slash");
-          } else {
-            humidityIcon.classList.remove("fa-tint-slash");
-            humidityIcon.classList.add("fa-tint");
-          }
-
-          // Alterando ícone de Chuva
-          const rainBox = document.getElementById("rain-level-box");
-          const rainIcon = rainBox.querySelector("i");
-          if (data.rain_level > 0.2) {
-            rainIcon.classList.remove("fa-cloud");
-            rainIcon.classList.add("fa-cloud-showers-heavy");
-          } else {
-            rainIcon.classList.remove("fa-cloud-showers-heavy");
-            rainIcon.classList.add("fa-cloud");
-          }
-
-          // Alterando ícone de Radiação UV
-          const uvBox = document.getElementById("uv-box");
-          const uvIcon = uvBox.querySelector("i");
-          if (data.uv_index > 7) {
-            uvIcon.classList.remove("fa-sun");
-            uvIcon.classList.add("fa-sun-cloud");
-          } else {
-            uvIcon.classList.remove("fa-sun-cloud");
-            uvIcon.classList.add("fa-sun");
-          }
-
-          // Alterando ícone de Vento
-          const windBox = document.getElementById("wind-direction-box");
-          const windIcon = windBox.querySelector("i");
-          windIcon.classList.remove("fa-wind");
-          windIcon.classList.add("fa-wind"); // Se necessário, pode adicionar mais lógica para vento forte
+          mainContent.style.marginLeft = "80px";
         }
       }
     </script>
