@@ -28,10 +28,9 @@
         box-sizing: border-box;
       }
       body {
-        font-family: "Roboto", sans-serif;
+        font-family: "Open-Sans", sans-serif;
         background: #1f2a44;
         color: #fff;
-        position: relative;
         min-height: 100vh;
       }
       /* SIDEBAR */
@@ -109,24 +108,32 @@
       input[type="checkbox"]:checked + .slider:before {
         transform: translateX(25px);
       }
+      .sidebar-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 2em;
+        cursor: pointer;
+      }
       /* CONTEÚDO PRINCIPAL */
       .main-content {
         margin-left: 80px;
-        padding: 20px;
+        padding: 15px;
         transition: margin-left 0.3s ease-in-out;
       }
       .top-bar {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        width: 100%;
-        margin-bottom: 10px 20px;
+        margin-bottom: 5px;
       }
       .top-bar h1 {
-        font-size: 4em;
+        font-size: 3em;
         text-align: center;
-        margin: 0;
         flex-grow: 1;
+      }
+      /* Elemento dummy para balancear o layout */
+      .top-bar .dummy {
+        width: 2.2em; /* Ajuste esse valor conforme o tamanho do botão */
       }
       .menu-btn {
         background: none;
@@ -134,7 +141,6 @@
         color: #fff;
         font-size: 2em;
         cursor: pointer;
-        margin-left: 10px;
       }
       /* CARD DE CLIMA ATUAL */
       .current-weather {
@@ -142,89 +148,51 @@
         border-radius: 20px;
         padding: 40px;
         display: flex;
-        justify-content: center;
+        flex-direction: column;
         align-items: center;
         margin-bottom: 20px;
       }
-      .weather-info {
+      .current-weather .temperature {
+        font-size: 10em;
+        margin: 0;
+      }
+      .current-weather .temperature-status {
+        font-size: 2em;
+        margin-bottom: 10px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      /* CARDS DE CONDIÇÕES */
+      .conditions {
         display: flex;
-        flex-direction: column;
+        flex-wrap: wrap;
+        gap: 15px;
       }
-      .weather-info h2 {
-        font-size: 9em;
-      }
-      .weather-info p {
-        font-size: 1.6em;
-        margin-top: 10px;
-      }
-      .weather-icon {
-        font-size: 7em;
-      }
-      /* BOX UNIFICADA DE CONDIÇÕES */
-      .conditions-box {
+      .condition-card {
         background-color: #2f3b58;
-        border-radius: 15px;
-        padding: 50px;
-        width: 100%;
-        max-width: 2000px;
-        margin: 0 auto 30px;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        grid-auto-rows: minmax(120px, auto);
-        gap: 40px;
+        border-radius: 10px;
+        padding: 20px;
+        flex: 1 1 calc(50% - 15px);
+        min-width: 260px;
         text-align: center;
       }
-      /* Centraliza o quinto item */
-      .conditions-box .condition-item:nth-child(5) {
-        grid-column: 1 / span 2;
-      }
-      .condition-item h3 {
-        font-size: 3.2em;
-        margin-bottom: 10px;
-        color: #ffd700;
-      }
-      .condition-item p {
-        font-size: 2.2em;
+      .condition-card i {
+        font-size: 2.5em;
         margin-bottom: 5px;
       }
-      .condition-item span {
-        font-size: 1.4em;
-        color: #ccc;
+      .condition-card h3 {
+        font-size: 1.8em;
+        margin-bottom: 3px;
+        color: #ffd700;
       }
-      /* Seta para direção do vento */
-      .arrow {
-        display: inline-block;
-        width: 0;
-        height: 0;
-        border-left: 20px solid transparent;
-        border-right: 20px solid transparent;
-        border-bottom: 40px solid #fff;
-        margin: 10px auto;
-        transform-origin: center;
+      .condition-card p {
+        font-size: 1.5em;
+        margin: 3px 0;
       }
-      .rotate-0 {
-        transform: rotate(0deg);
-      }
-      .rotate-45 {
-        transform: rotate(45deg);
-      }
-      .rotate-90 {
-        transform: rotate(90deg);
-      }
-      .rotate-135 {
-        transform: rotate(135deg);
-      }
-      .rotate-180 {
-        transform: rotate(180deg);
-      }
-      .rotate-225 {
-        transform: rotate(225deg);
-      }
-      .rotate-270 {
-        transform: rotate(270deg);
-      }
-      .rotate-315 {
-        transform: rotate(315deg);
+      /* LEGENDAS */
+      .legend {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9em;
       }
       /* RODAPÉ */
       .footer {
@@ -236,16 +204,23 @@
       /* RESPONSIVIDADE */
       @media (max-width: 768px) {
         .top-bar h1 {
-          font-size: 2.5em;
+          font-size: 1.8em;
         }
-        .current-weather h2 {
-          font-size: 4em;
+        .current-weather .temperature {
+          font-size: 6em;
         }
-        .condition-item h3 {
+        .current-weather .temperature-status {
+          font-size: 1.8em;
+        }
+        .condition-card {
+          min-width: 280px;
+          padding: 30px;
+        }
+        .condition-card h3 {
           font-size: 2em;
         }
-        .condition-item p {
-          font-size: 1.6em;
+        .condition-card p {
+          font-size: 1.5em;
         }
       }
       .sidebar.hide + .main-content {
@@ -260,7 +235,7 @@
         src="{{ url_for('static', filename='loguinho.png') }}"
         alt="PUC Logo"
       />
-      <!-- Toggle de temperatura na sidebar -->
+      <!-- Toggle de temperatura -->
       <div class="sidebar-toggle">
         <span>°C</span>
         <label>
@@ -273,11 +248,16 @@
         </label>
         <span>°F</span>
       </div>
+      <!-- Navegação -->
       <div class="nav-item">
-        <a href="/temperatura"><i class="fas fa-thermometer-4"></i></a>
+        <a href="/temperatura" title="Gráfico de Temperatura">
+          <i class="fas fa-thermometer-half"></i>
+        </a>
       </div>
       <div class="nav-item">
-        <a href="/dados"><i class="fas fa-magnifying-glass-plus"></i></a>
+        <a href="/dados" title="Dashboard de Dados">
+          <i class="fas fa-chart-line"></i>
+        </a>
       </div>
     </aside>
 
@@ -288,52 +268,43 @@
           <i class="fas fa-bars"></i>
         </button>
         <h1>Clima PUC</h1>
+        <!-- Elemento "dummy" para balancear o layout -->
+        <div class="dummy"></div>
       </div>
 
       <!-- CARD DE CLIMA ATUAL -->
       <div class="current-weather">
-        <div class="weather-info">
-          <h2 class="temperature" data-temp="{{ temperature }}">
-            {{ "%.f"|format(temperature) }}°C
-          </h2>
-          <p class="temperature-status">{{ temperature_status }}</p>
-        </div>
-        <div class="weather-icon">
-          <i id="current-icon" class="{{ wind_icon_class }}"></i>
-        </div>
+        <h2 class="temperature" data-temp="{{ temperature|round(1) }}">
+          {{ "%.f"|format(temperature) }}°C
+        </h2>
+        <p class="temperature-status">{{ temperature_status }}</p>
       </div>
 
-      <!-- BOX UNIFICADA DE CONDIÇÕES -->
-      <div class="conditions-box">
-        <!-- Umidade -->
-        <div class="condition-item">
-          <h3><i class="fas fa-tint"></i> Umidade</h3>
+      <!-- CARDS DE CONDIÇÕES -->
+      <div class="conditions">
+        <div class="condition-card">
+          <i class="fas fa-tint" style="color: #ffd700"></i>
+          <h3>Umidade</h3>
           <p>{{ "%.f"|format(humidity) }}%</p>
-          <span>{{ humidity_status }}</span>
+          <p class="legend">{{ humidity_status }}</p>
         </div>
-        <!-- Chuva -->
-        <div class="condition-item">
-          <h3><i class="fas fa-cloud-showers-heavy"></i> Chuva</h3>
+        <div class="condition-card">
+          <i class="fas fa-cloud-showers-heavy" style="color: #ffd700"></i>
+          <h3>Chuva</h3>
           <p>{{ "%.3f"|format(rain_level) }} mm</p>
-          <span>{{ rain_status }}</span>
+          <p class="legend">{{ rain_status }}</p>
         </div>
-        <!-- Velocidade do Vento -->
-        <div class="condition-item">
-          <h3><i class="fas fa-wind"></i> Velocidade do vento</h3>
-          <p>{{ "%.2f"|format(wind_speed_kmh) }} km/h</p>
-          <span>{{ wind_speed_status }}</span>
+        <div class="condition-card">
+          <i class="fas fa-wind" style="color: #ffd700"></i>
+          <h3>Vento</h3>
+          <p>{{ "%.f"|format(wind_speed_kmh) }} km/h - {{ wind_direction }}</p>
+          <p class="legend">{{ wind_speed_status }}</p>
         </div>
-        <!-- Direção do Vento -->
-        <div class="condition-item">
-          <h3> Direção do vento</h3>
-          <p><div class="arrow {{ wind_icon_class }}"></div></p>
-          <span>{{ wind_direction }}</span>
-        </div>
-        <!-- Radiação UV -->
-        <div class="condition-item">
-          <h3><i class="fas fa-sun"></i> Radiação UV</h3>
+        <div class="condition-card">
+          <i class="fas fa-sun" style="color: #ffd700"></i>
+          <h3>Radiação UV</h3>
           <p>{{ "%.f"|format(uv_index) }}</p>
-          <span>{{ uv_status }}</span>
+          <p class="legend">{{ uv_status }}</p>
         </div>
       </div>
 
@@ -357,11 +328,11 @@
           if (toggle.checked) {
             // Converter Celsius para Fahrenheit
             convertedTemp = (originalTemp * 9) / 5 + 32;
-            element.textContent = convertedTemp.toFixed(1) + " °F";
+            element.textContent = convertedTemp.toFixed(1) + "°F";
           } else {
             // Converter Fahrenheit para Celsius
             convertedTemp = ((originalTemp - 32) * 5) / 9;
-            element.textContent = Math.round(convertedTemp) + " °C";
+            element.textContent = Math.round(convertedTemp) + "°C";
           }
           element.setAttribute("data-temp", convertedTemp.toFixed(1));
         });
@@ -370,11 +341,9 @@
         const sidebar = document.getElementById("sidebar");
         const mainContent = document.getElementById("mainContent");
         sidebar.classList.toggle("hide");
-        if (sidebar.classList.contains("hide")) {
-          mainContent.style.marginLeft = "0";
-        } else {
-          mainContent.style.marginLeft = "80px";
-        }
+        mainContent.style.marginLeft = sidebar.classList.contains("hide")
+          ? "0"
+          : "80px";
       }
     </script>
   </body>
