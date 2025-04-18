@@ -55,25 +55,26 @@ def save_to_mysql(data):
             connection.close()
 
 def on_connect(client, userdata, flags, rc):
-    """Callback chamada ao conectar ao broker MQTT."""
     if rc == 0:
-        print("Conexão bem-sucedida ao broker MQTT!")
-        if not userdata.get('subscribed', False):  # Verifica se já está inscrito
-            client.subscribe("konda")  # Substitua pelo tópico correto
+        print("[INFO] Conexão bem-sucedida ao broker MQTT!")
+        if not userdata.get('subscribed', False):
+            print("[INFO] Inscrevendo-se no tópico 'konda'...")
+            client.subscribe("konda")
             userdata['subscribed'] = True
+        else:
+            print("[INFO] Já inscrito no tópico.")
     else:
-        print(f"Falha na conexão ao broker MQTT. Código de retorno: {rc}")
+        print(f"[ERRO] Falha na conexão ao broker MQTT. Código: {rc}")
 
-def on_disconnect(client, userdata, rc):
-    """Callback chamada ao desconectar do broker MQTT."""
-    print("Desconectado do broker MQTT. Código de retorno:", rc)
-    # Aqui você pode implementar lógica adicional para reconectar ou logar o evento
 
 def on_message(client, userdata, msg):
-    """Callback chamada ao receber uma mensagem no MQTT."""
+    print(f"[DEBUG] Mensagem recebida no tópico: {msg.topic}")
+    print(f"[DEBUG] Payload bruto: {msg.payload.decode()}")
+
     try:
         payload = json.loads(msg.payload.decode())
-        print("Dados recebidos do MQTT:", payload)
+        print("[DEBUG] Payload decodificado com sucesso.")
+
         if isinstance(payload, list):
             data_to_save = {}
             for item in payload:
@@ -94,48 +95,71 @@ def on_message(client, userdata, msg):
                     data_to_save["solar_radiation"] = {"value": value, "unit": unit}
                 elif label == "emw_temperature":
                     data_to_save["temperature"] = {"value": value, "unit": unit}
+            
             if data_to_save:
                 data_to_save["timestamp"] = time.time()
+                print("[DEBUG] Dados extraídos do payload:", data_to_save)
                 save_to_mysql(data_to_save)
+            else:
+                print("[DEBUG] Nenhum dado válido encontrado no payload.")
         else:
-            print("Payload recebido não é uma lista.")
-    except json.JSONDecodeError:
-        print("Erro ao decodificar JSON:", msg.payload.decode())
+            print("[WARN] Payload recebido não é uma lista.")
+    except json.JSONDecodeError as e:
+        print(f"[ERRO] Erro ao decodificar JSON: {e}")
+        print(f"[ERRO] Payload bruto:", msg.payload.decode())
     except Exception as e:
-        print(f"Erro ao processar mensagem MQTT: {e}")
+        print(f"[ERRO] Erro inesperado ao processar mensagem MQTT: {e}")
+
+
+# ... [tudo acima igual, sem alterações]
+
+def on_disconnect(client, userdata, rc):
+    """Callback chamada ao desconectar do broker MQTT."""
+    print(f"[DISCONNECT] Desconectado do broker MQTT. Código: {rc}")
+    if rc != 0:
+        print("[DISCONNECT] Desconexão inesperada. Tentando reconectar...")
 
 def setup_mqtt():
     """Configurar e iniciar o cliente MQTT."""
-    client = mqtt.Client(userdata={'subscribed': False})
+    client = mqtt.Client(protocol=mqtt.MQTTv5, transport="tcp")
+    client.user_data_set({'subscribed': False})
     client.on_connect = on_connect
     client.on_message = on_message
     client.on_disconnect = on_disconnect
     
-    # Utiliza a variável de ambiente para definir o broker
     broker = os.getenv("MQTT_BROKER", "192.168.1.110")
     
-    while True:  # Loop para reconexão automática
+    while True:
         try:
-            print("Tentando conectar ao broker MQTT...")
-            # Ajuste o keepalive conforme necessário (aqui usamos 60 segundos para detecção rápida)
+            print("[MQTT] Tentando conectar ao broker MQTT...")
             client.connect(broker, 1883, keepalive=60)
+            print("[MQTT] Conectado ao broker com sucesso.")
             return client
         except Exception as e:
-            print(f"Erro ao conectar ao broker MQTT: {e}. Tentando novamente em 5s...")
+            print(f"[ERRO] Falha ao conectar ao broker MQTT: {e}")
+            print("[INFO] Tentando novamente em 5 segundos...")
             time.sleep(5)
 
 if __name__ == '__main__':
     client = setup_mqtt()
+    print("[START] Iniciando conexão MQTT:")
     if client:
-        print("Cliente MQTT iniciado...")
-        client.loop_start()  # Mantém a conexão ativa em segundo plano
+        print("[INFO] Cliente MQTT iniciado...")
+        client.loop_start()  # Loop MQTT rodando em thread separada
+
         while True:
             try:
                 time.sleep(10)
+
                 if not client.is_connected():
-                    print("Cliente MQTT desconectado! Tentando reconectar...")
-                    client.reconnect()
+                    print("[MONITOR] Cliente MQTT desconectado. Tentando reconectar...")
+                    try:
+                        client.reconnect()
+                        print("[MONITOR] Reconectado com sucesso!")
+                    except Exception as e:
+                        print(f"[MONITOR] Falha na tentativa de reconexão: {e}")
+
             except Exception as e:
-                print(f"Erro inesperado: {e}")
+                print(f"[FATAL] Erro inesperado no loop principal: {e}")
     else:
-        print("Falha ao iniciar o cliente MQTT. Verifique o broker e a conexão de rede.")
+        print("[ERRO] Falha ao iniciar o cliente MQTT.")
