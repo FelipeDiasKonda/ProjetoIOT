@@ -10,7 +10,7 @@ services:
     environment:
       - FLASK_DEBUG=1
       - FLASK_ENV=development
-      - MQTT_BROKER=BrokerEstacao  # Certifique-se de usar variáveis para flexibilidade
+      - MQTT_BROKER=192.168.1.110  # Certifique-se de usar variáveis para flexibilidade
     command: gunicorn -w 4 --reload -b 0.0.0.0:80 app:app
     depends_on:
       - mysql
@@ -20,6 +20,7 @@ services:
     build:
       context: .  # Pode ser o mesmo contexto se as dependências forem iguais
       dockerfile: Dockerfile  # Se necessário, você pode criar um Dockerfile específico para o MQTT
+    container_name: mqtt_handler
     volumes:
       - .:/app
     environment:
@@ -27,6 +28,19 @@ services:
     command: python mqtt_handler.py  # Ou python mqtt_setup.py, conforme o nome do seu script
     depends_on:
       - mysql
+  
+  # Container do script de monitoramento
+  mqtt_monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mqtt_monitor
+    command: /monitor.sh
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Permite controlar o Docker de dentro do container
+    depends_on:
+      - mysql
+      - mqtt_handler
 
   mysql:
     image: mysql:8.0
@@ -44,7 +58,17 @@ services:
         limits:
           memory: 250M
     restart: unless-stopped
-  
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadminN 
+    environment:
+      PMA_HOST: mysql  # Nome do serviço MySQL no Docker Compose
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: example  # Deve ser igual ao configurado no MySQL
+    ports:
+      - "8000:80"  # Porta para acessar o phpMyAdmin no navegador
+    depends_on:
+      - mysql
 volumes:
   mysql_data:
     driver: local
