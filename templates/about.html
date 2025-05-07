@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="600" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clima PUC - Sobre Nós</title>
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='clima.png') }}"
+      type="image/png"
+    />
+    <!-- Pré-conexão para otimizar carregamento de ícones e fontes -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* RESET */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Roboto", sans-serif;
+        background: #1f2a44;
+        color: #fff;
+        min-height: 100vh;
+      }
+      /* SIDEBAR */
+      .sidebar {
+        position: fixed;
+        width: 80px;
+        height: 100vh;
+        background-color: #2a3550;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+        transition: transform 0.2s ease-in-out;
+        z-index: 1000;
+      }
+      .sidebar.hide {
+        transform: translateX(-100%);
+      }
+      .sidebar .nav-item {
+        margin: 20px 0;
+        cursor: pointer;
+        color: #fff;
+      }
+      .sidebar .nav-item a {
+        color: inherit;
+        text-decoration: none;
+      }
+      .sidebar .nav-item i {
+        font-size: 1.8em;
+      }
+      .sidebar .nav-item.who-we-are {
+        margin-top: auto;
+      }
+      .menu-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 2em;
+        cursor: pointer;
+      }
+      /* CONTEÚDO PRINCIPAL */
+      .main-content {
+        margin-left: 80px;
+        padding: 15px;
+        transition: margin-left 0.3s ease-in-out;
+      }
+      .top-bar {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+      .top-bar h1 {
+        font-size: 3em;
+        text-align: center;
+        flex-grow: 1;
+      }
+      .top-bar .dummy {
+        width: 2.2em;
+      }
+      /* SOBRE NÓS */
+      .about-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 20px;
+      }
+      .member-card {
+        background-color: #2f3b58;
+        border-radius: 15px;
+        padding: 20px;
+        width: 300px;
+        text-align: center;
+      }
+      .member-card img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 15px;
+      }
+      .member-card h3 {
+        font-size: 1.8em;
+        margin-bottom: 10px;
+        color: #ffd700;
+      }
+      .member-card .links a {
+        margin: 0 10px;
+        color: #02d7fd;
+        font-size: 1.5em;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #ccc;
+        font-size: 1.2em;
+      }
+      /* Responsividade */
+      @media (max-width: 768px) {
+        .member-card {
+          width: calc(50% - 30px);
+        }
+      }
+      @media (max-width: 480px) {
+        .main-content {
+          margin-left: 0;
+        }
+        .member-card {
+          width: 100%;
+        }
+      }
+      .sidebar.hide + .main-content {
+        margin-left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="nav-item">
+        <a href="/">
+          <img
+            src="{{ url_for('static', filename='loguinho.png') }}"
+            alt="PUC Logo"
+            width="80"
+          />
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="/temperatura" title="Gráfico de Temperatura">
+          <i class="fas fa-thermometer-half"></i>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="/dados" title="Dashboard de Dados">
+          <i class="fas fa-chart-line"></i>
+        </a>
+      </div>
+      <div class="nav-item who-we-are">
+        <a href="/about" title="Quem Somos">
+          <i class="fas fa-user"></i>
+        </a>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <button class="menu-btn" onclick="toggleSidebarVisibility()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1>Quem Somos</h1>
+        <div class="dummy"></div>
+      </div>
+
+      <!-- LISTA DE MEMBROS -->
+      <div class="about-list">
+        <div class="member-card">
+          <img
+            src="{{ url_for('static', filename='lucas.jpeg') }}"
+            alt="Lucas Magaldi"
+          />
+          <h3>Lucas Magaldi</h3>
+          <div class="links">
+            <a href="https://github.com/Magaldi2" target="_blank"
+              ><i class="fab fa-github"></i
+            ></a>
+            <a
+              href="https://www.linkedin.com/in/lucas-magaldi-2a3988222/"
+              target="_blank"
+              ><i class="fab fa-linkedin"></i
+            ></a>
+          </div>
+        </div>
+        <div class="member-card">
+          <img
+            src="{{ url_for('static', filename='konda.jpeg') }}"
+            alt="Felipe Konda"
+          />
+          <h3>Felipe Konda</h3>
+          <div class="links">
+            <a href="https://github.com/FelipeDiasKonda" target="_blank"
+              ><i class="fab fa-github"></i
+            ></a>
+            <a
+              href="https://www.linkedin.com/in/felipe-konda-07a5402a5/"
+              target="_blank"
+              ><i class="fab fa-linkedin"></i
+            ></a>
+          </div>
+        </div>
+        <div class="member-card">
+          <img
+            src="{{ url_for('static', filename='tue.jpeg') }}"
+            alt="Matheus Anitelli"
+          />
+          <h3>Matheus Anitelli</h3>
+          <div class="links">
+            <a href="https://github.com/mttue7" target="_blank"
+              ><i class="fab fa-github"></i
+            ></a>
+            <a href="http://linkedin.com/in/matheus-anitelli/" target="_blank"
+              ><i class="fab fa-linkedin"></i
+            ></a>
+          </div>
+        </div>
+      </div>
+
+    <!-- SCRIPTS -->
+    <script>
+      function toggleSidebarVisibility() {
+        const sb = document.getElementById("sidebar");
+        const mc = document.getElementById("mainContent");
+        sb.classList.toggle("hide");
+        mc.style.marginLeft = sb.classList.contains("hide") ? "0" : "80px";
+      }
+    </script>
+  </body>
+</html>

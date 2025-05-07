@@ -28,7 +28,7 @@
         box-sizing: border-box;
       }
       body {
-        font-family: "Open-Sans", sans-serif;
+        font-family: "Roboto", sans-serif;
         background: #1f2a44;
         color: #fff;
         min-height: 100vh;
@@ -64,6 +64,10 @@
       }
       .sidebar .nav-item i {
         font-size: 1.8em;
+      }
+      /* "Quem Somos" sempre embaixo */
+      .sidebar .nav-item.who-we-are {
+        margin-top: auto;
       }
       .sidebar-toggle {
         display: flex;
@@ -108,7 +112,7 @@
       input[type="checkbox"]:checked + .slider:before {
         transform: translateX(25px);
       }
-      .sidebar-btn {
+      .menu-btn {
         background: none;
         border: none;
         color: #fff;
@@ -131,16 +135,8 @@
         text-align: center;
         flex-grow: 1;
       }
-      /* Elemento dummy para balancear o layout */
       .top-bar .dummy {
-        width: 2.2em; /* Ajuste esse valor conforme o tamanho do botão */
-      }
-      .menu-btn {
-        background: none;
-        border: none;
-        color: #fff;
-        font-size: 2em;
-        cursor: pointer;
+        width: 2.2em;
       }
       /* CARD DE CLIMA ATUAL */
       .current-weather {
@@ -189,7 +185,6 @@
         font-size: 1.5em;
         margin: 3px 0;
       }
-      /* LEGENDAS */
       .legend {
         color: rgba(255, 255, 255, 0.7);
         font-size: 0.9em;
@@ -223,6 +218,7 @@
           font-size: 1.5em;
         }
       }
+      /* Ajusta conteúdo quando sidebar escondida */
       .sidebar.hide + .main-content {
         margin-left: 0;
       }
@@ -232,9 +228,11 @@
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
       <img
+        href="/"
         src="{{ url_for('static', filename='loguinho.png') }}"
         alt="PUC Logo"
       />
+
       <!-- Toggle de temperatura -->
       <div class="sidebar-toggle">
         <span>°C</span>
@@ -248,6 +246,7 @@
         </label>
         <span>°F</span>
       </div>
+
       <!-- Navegação -->
       <div class="nav-item">
         <a href="/temperatura" title="Gráfico de Temperatura">
@@ -259,6 +258,13 @@
           <i class="fas fa-chart-line"></i>
         </a>
       </div>
+
+      <!-- Quem Somos (sempre embaixo) -->
+      <div class="nav-item who-we-are">
+        <a href="/about" title="Quem Somos">
+          <i class="fas fa-user"></i>
+        </a>
+      </div>
     </aside>
 
     <!-- CONTEÚDO PRINCIPAL -->
@@ -268,14 +274,13 @@
           <i class="fas fa-bars"></i>
         </button>
         <h1>Clima PUC</h1>
-        <!-- Elemento "dummy" para balancear o layout -->
         <div class="dummy"></div>
       </div>
 
       <!-- CARD DE CLIMA ATUAL -->
       <div class="current-weather">
-        <h2 class="temperature" data-temp="{{ temperature|round(1) }}">
-          {{ "%.f"|format(temperature) }}°C
+        <h2 class="temperature" data-temp="{{ temperature }}">
+          {{ '%.f'|format(temperature) }}°C
         </h2>
         <p class="temperature-status">{{ temperature_status }}</p>
       </div>
@@ -285,25 +290,25 @@
         <div class="condition-card">
           <i class="fas fa-tint" style="color: #ffd700"></i>
           <h3>Umidade</h3>
-          <p>{{ "%.f"|format(humidity) }}%</p>
+          <p>{{ '%.f'|format(humidity) }}%</p>
           <p class="legend">{{ humidity_status }}</p>
         </div>
         <div class="condition-card">
           <i class="fas fa-cloud-showers-heavy" style="color: #ffd700"></i>
           <h3>Chuva</h3>
-          <p>{{ "%.3f"|format(rain_level) }} mm</p>
+          <p>{{ '%.3f'|format(rain_level) }} mm</p>
           <p class="legend">{{ rain_status }}</p>
         </div>
         <div class="condition-card">
           <i class="fas fa-wind" style="color: #ffd700"></i>
           <h3>Vento</h3>
-          <p>{{ "%.f"|format(wind_speed_kmh) }} km/h - {{ wind_direction }}</p>
+          <p>{{ '%.f'|format(wind_speed_kmh) }} km/h - {{ wind_direction }}</p>
           <p class="legend">{{ wind_speed_status }}</p>
         </div>
         <div class="condition-card">
           <i class="fas fa-sun" style="color: #ffd700"></i>
           <h3>Radiação UV</h3>
-          <p>{{ "%.f"|format(uv_index) }}</p>
+          <p>{{ '%.f'|format(uv_index) }}</p>
           <p class="legend">{{ uv_status }}</p>
         </div>
       </div>
@@ -311,8 +316,8 @@
       <!-- RODAPÉ -->
       <div class="footer">
         <p>
-          Desenvolvido por alunos da <strong>PUC</strong>. Todos os direitos
-          reservados.
+          Desenvolvido por <a href="/about" style="color: #ffd700">alunos</a> da
+          <strong>PUCCAMPINAS</strong>. Todos os direitos reservados.
         </p>
       </div>
     </div>
@@ -321,29 +326,20 @@
     <script>
       function toggleTemperature() {
         const toggle = document.getElementById("toggleTemp");
-        const tempElements = document.querySelectorAll(".temperature");
-        tempElements.forEach((element) => {
-          let originalTemp = parseFloat(element.getAttribute("data-temp")) || 0;
-          let convertedTemp;
-          if (toggle.checked) {
-            // Converter Celsius para Fahrenheit
-            convertedTemp = (originalTemp * 9) / 5 + 32;
-            element.textContent = convertedTemp.toFixed(1) + "°F";
-          } else {
-            // Converter Fahrenheit para Celsius
-            convertedTemp = ((originalTemp - 32) * 5) / 9;
-            element.textContent = Math.round(convertedTemp) + "°C";
-          }
-          element.setAttribute("data-temp", convertedTemp.toFixed(1));
+        document.querySelectorAll(".temperature").forEach((el) => {
+          let val = parseFloat(el.getAttribute("data-temp")) || 0;
+          let conv = toggle.checked ? (val * 9) / 5 + 32 : ((val - 32) * 5) / 9;
+          el.textContent = toggle.checked
+            ? conv.toFixed(1) + "°F"
+            : Math.round(conv) + "°C";
+          el.setAttribute("data-temp", conv.toFixed(1));
         });
       }
       function toggleSidebarVisibility() {
-        const sidebar = document.getElementById("sidebar");
-        const mainContent = document.getElementById("mainContent");
-        sidebar.classList.toggle("hide");
-        mainContent.style.marginLeft = sidebar.classList.contains("hide")
-          ? "0"
-          : "80px";
+        const sb = document.getElementById("sidebar");
+        const mc = document.getElementById("mainContent");
+        sb.classList.toggle("hide");
+        mc.style.marginLeft = sb.classList.contains("hide") ? "0" : "80px";
       }
     </script>
   </body>

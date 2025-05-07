@@ -315,6 +315,9 @@ def plot_data():
                            average_temperature=average_temperature,
                            max_temperature=max_temperature,
                            min_temperature=min_temperature,)
+@app.route('/about')
+def about():
+    return render_template('about.html')
 
 # Função para rodar o MQTT em um processo separado
 def run_mqtt():
