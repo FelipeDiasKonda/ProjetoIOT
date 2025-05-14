@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
-    <meta http-equiv="refresh" content="600">
     <meta charset="UTF-8" />
+    <meta http-equiv="refresh" content="600" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Clima PUC</title>
     <link
@@ -10,479 +10,330 @@
       href="{{ url_for('static', filename='clima.png') }}"
       type="image/png"
     />
+    <!-- Pré-conexão para otimizar carregamento de ícones e fontes -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
       rel="stylesheet"
     />
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      .arrow {
-        width: 0;
-        height: 0;
-        border-left: 10px solid transparent;
-        border-right: 10px solid transparent;
-        border-bottom: 20px solid white;
-        margin: 10px auto;
-        transform-origin: center;
-      }
-      .rotate-0 {
-        transform: rotate(0deg);
-      }
-      .rotate-45 {
-        transform: rotate(45deg);
-      }
-      .rotate-90 {
-        transform: rotate(90deg);
-      }
-      .rotate-135 {
-        transform: rotate(135deg);
-      }
-      .rotate-180 {
-        transform: rotate(180deg);
-      }
-      .rotate-225 {
-        transform: rotate(225deg);
-      }
-      .rotate-270 {
-        transform: rotate(270deg);
-      }
-      .rotate-315 {
-        transform: rotate(315deg);
-      }
-      /* RESET DE ESTILOS */
+      /* RESET */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
-
       body {
         font-family: "Roboto", sans-serif;
-        background: linear-gradient(135deg, #1f2a44, #24304a);
+        background: #1f2a44;
         color: #fff;
-        margin: 0;
-        height: 100vh;
-        overflow-x: hidden;
+        min-height: 100vh;
       }
-
-      /* CABEÇALHO FIXO */
-      header {
-        background: rgba(20, 27, 43, 0.85);
+      /* SIDEBAR */
+      .sidebar {
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
+        width: 80px;
+        height: 100vh;
+        background-color: #2a3550;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 0;
+        transition: transform 0.2s ease-in-out;
         z-index: 1000;
-        padding: 2px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        display: flex;
-        align-items: center;
       }
-
-      .header-content {
-        display: flex;
-        width: 100%;
-        justify-content: center;
-        align-items: center;
+      .sidebar.hide {
+        transform: translateX(-100%);
       }
-
-      header h1 {
-        color: #02d7fd;
-        font-size: 3em;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        margin: 0;
-        text-align: center;
-      }
-
-      /* CONTEÚDO PRINCIPAL */
-      .container {
-        margin-top: 120px;
-        padding: 40px;
-        background: rgba(20, 27, 43, 0.85);
-        border-radius: 30px;
-        width: 92%;
-        height: auto;
-        max-width: 1300px;
-        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
-        backdrop-filter: blur(20px);
-        animation: fadeIn 1s ease-out;
-        margin-left: auto;
-        margin-right: auto;
-        text-align: center;
-      }
-      h1 {
-        color: #ffd700;
-        font-size: 2.5em;
-        margin-bottom: 15px;
-        font-weight: 700;
-      }
-
-      .metrics {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 20px;
+      .sidebar img {
+        width: 80px;
         margin-bottom: 30px;
       }
-
-      .metric-box {
-        background: linear-gradient(135deg, #5a6dbf, #6a85b6);
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3);
-        text-align: center;
-        flex: 1 1 45%; /* Responsivo */
-        color: #fff;
-        font-size: 1.2em;
-        min-width: 200px;
-      }
-
-      .metric-box h2 {
-        color: #ffd700;
-        font-size: 1.5em;
-        margin-bottom: 10px;
-      }
-
-      button {
-        background: linear-gradient(135deg, #5a6dbf, #6a85b6);
-        color: white;
-        padding: 15px 30px;
-        border: none;
-        border-radius: 50px;
+      .sidebar .nav-item {
+        margin: 20px 0;
         cursor: pointer;
-        font-size: 1.1em;
-        transition: transform 0.3s, box-shadow 0.3s;
-        margin: 0px;
-        margin-bottom: 12px; /* Espaçamento entre os botões */
-        text-transform: uppercase;
-        width: 100%;
+        color: #fff;
       }
-
-      button:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(74, 144, 226, 0.4);
+      .sidebar .nav-item a {
+        color: inherit;
+        text-decoration: none;
       }
-
-      /* ANIMAÇÃO */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+      .sidebar .nav-item i {
+        font-size: 1.8em;
       }
-
-      /* Estilos para o botão deslizante */
-      .switch {
-        position: absolute;
-        top: 20px; /* Distância do topo */
-        right: 20px; /* Distância da direita */
+      /* "Quem Somos" sempre embaixo */
+      .sidebar .nav-item.who-we-are {
+        margin-top: auto;
+      }
+      .sidebar-toggle {
         display: flex;
-        align-items: center; /* Alinha os elementos verticalmente */
-        gap: 10px; /* Espaço entre Celsius, botão e Fahrenheit */
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 20px;
       }
-
-      .switch label {
-        display: inline-flex;
-        align-items: center; /* Alinha o botão verticalmente */
+      .sidebar-toggle span {
+        font-size: 1em;
       }
-
-      .slider {
-        width: 50px;
-        height: 25px;
+      .sidebar-toggle label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+      }
+      .sidebar-toggle .slider {
+        width: 40px;
+        height: 20px;
         background-color: #ccc;
         border-radius: 25px;
         position: relative;
         cursor: pointer;
         transition: background-color 0.2s;
       }
-
-      .slider:before {
+      .sidebar-toggle .slider:before {
         content: "";
         position: absolute;
-        width: 21px;
-        height: 21px;
+        width: 16px;
+        height: 16px;
         background-color: #fff;
         border-radius: 50%;
         top: 2px;
         left: 2px;
         transition: transform 0.2s;
       }
-
-      input {
-        display: none; /* Esconde o input padrão */
+      input[type="checkbox"] {
+        display: none;
       }
-
-      input:checked + .slider {
+      input[type="checkbox"]:checked + .slider {
         background-color: #02d7fd;
       }
-
-      input:checked + .slider:before {
-        transform: translateX(25px); /* Movimenta o botão */
+      input[type="checkbox"]:checked + .slider:before {
+        transform: translateX(25px);
       }
-
-      /* MEDIA QUERIES PARA RESPONSIVIDADE */
+      .menu-btn {
+        background: none;
+        border: none;
+        color: #fff;
+        font-size: 2em;
+        cursor: pointer;
+      }
+      /* CONTEÚDO PRINCIPAL */
+      .main-content {
+        margin-left: 80px;
+        padding: 15px;
+        transition: margin-left 0.3s ease-in-out;
+      }
+      .top-bar {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+      .top-bar h1 {
+        font-size: 3em;
+        text-align: center;
+        flex-grow: 1;
+      }
+      .top-bar .dummy {
+        width: 2.2em;
+      }
+      /* CARD DE CLIMA ATUAL */
+      .current-weather {
+        background-color: #2f3b58;
+        border-radius: 20px;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .current-weather .temperature {
+        font-size: 10em;
+        margin: 0;
+      }
+      .current-weather .temperature-status {
+        font-size: 2em;
+        margin-bottom: 10px;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+      }
+      /* CARDS DE CONDIÇÕES */
+      .conditions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+      }
+      .condition-card {
+        background-color: #2f3b58;
+        border-radius: 10px;
+        padding: 20px;
+        flex: 1 1 calc(50% - 15px);
+        min-width: 260px;
+        text-align: center;
+      }
+      .condition-card i {
+        font-size: 2.5em;
+        margin-bottom: 5px;
+      }
+      .condition-card h3 {
+        font-size: 1.8em;
+        margin-bottom: 3px;
+        color: #ffd700;
+      }
+      .condition-card p {
+        font-size: 1.5em;
+        margin: 3px 0;
+      }
+      .legend {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9em;
+      }
+      /* RODAPÉ */
+      .footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #ccc;
+        font-size: 1.5em;
+      }
+      /* RESPONSIVIDADE */
       @media (max-width: 768px) {
-        header h1 {
-          font-size: 2em;
-        }
-
-        .container {
-          padding: 15px;
-          margin-top: 80px;
-        }
-
-        h1 {
+        .top-bar h1 {
           font-size: 1.8em;
         }
-
-        .metric-box {
-          flex: 1 1 100%;
+        .current-weather .temperature {
+          font-size: 6em;
         }
-
-        button {
-          width: 90%;
+        .current-weather .temperature-status {
+          font-size: 1.8em;
+        }
+        .condition-card {
+          min-width: 280px;
+          padding: 30px;
+        }
+        .condition-card h3 {
+          font-size: 2em;
+        }
+        .condition-card p {
+          font-size: 1.5em;
         }
       }
-
-      @media (max-width: 480px) {
-        header h1 {
-          font-size: 1.5em;
-        }
-
-        .container {
-          margin-top: 70px;
-        }
-
-        h1 {
-          font-size: 1.5em;
-        }
-
-        .metrics {
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .metric-box {
-          font-size: 0.9em;
-        }
-
-        button {
-          width: 100%;
-        }
+      /* Ajusta conteúdo quando sidebar escondida */
+      .sidebar.hide + .main-content {
+        margin-left: 0;
       }
     </style>
   </head>
   <body>
-    <header>
-      <div class="header-content">
-        <h2>
-          <img
-            src="{{ url_for('static', filename='logo_puc.png') }}"
-            alt="PUC Logo"
-            width="100"
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <img
+        href="/"
+        src="{{ url_for('static', filename='loguinho.png') }}"
+        alt="PUC Logo"
+      />
+
+      <!-- Toggle de temperatura -->
+      <div class="sidebar-toggle">
+        <span>°C</span>
+        <label>
+          <input
+            type="checkbox"
+            id="toggleTemp"
+            onclick="toggleTemperature()"
           />
+          <span class="slider"></span>
+        </label>
+        <span>°F</span>
+      </div>
+
+      <!-- Navegação -->
+      <div class="nav-item">
+        <a href="/temperatura" title="Gráfico de Temperatura">
+          <i class="fas fa-thermometer-half"></i>
+        </a>
+      </div>
+      <div class="nav-item">
+        <a href="/dados" title="Dashboard de Dados">
+          <i class="fas fa-chart-line"></i>
+        </a>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content" id="mainContent">
+      <div class="top-bar">
+        <button class="menu-btn" onclick="toggleSidebarVisibility()">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h1>Clima PUC</h1>
+        <div class="dummy"></div>
+      </div>
+
+      <!-- CARD DE CLIMA ATUAL -->
+      <div class="current-weather">
+        <h2 class="temperature" data-temp="{{ temperature }}">
+          {{ '%.f'|format(temperature) }}°C
         </h2>
-
-        <div class="switch">
-          <span>°C</span>
-          <label>
-            <input
-              type="checkbox"
-              id="toggleTemp"
-              onclick="toggleTemperature()"
-            />
-            <span class="slider"></span>
-          </label>
-          <span>°F</span>
-        </div>
+        <p class="temperature-status">{{ temperature_status }}</p>
       </div>
-    </header>
 
-    <div class="container">
-      <h1>Bem-vindo ao Clima PUC</h1>
-
-      <div class="metrics">
-        <div class="metric-box" id="temperature-box">
-          <h2>Temperatura <i class="fas fa-thermometer-half"></i></h2>
-          <p id="temperature" class="temperature" data-temp="{{ temperature }}">
-            {{ "%.f"|format(temperature) }}°C
-          </p>
-          <p id="temperature-status">{{ temperature_status }}</p>
+      <!-- CARDS DE CONDIÇÕES -->
+      <div class="conditions">
+        <div class="condition-card">
+          <i class="fas fa-tint" style="color: #ffd700"></i>
+          <h3>Umidade</h3>
+          <p>{{ '%.f'|format(humidity) }}%</p>
+          <p class="legend">{{ humidity_status }}</p>
         </div>
-        <div class="metric-box" id="humidity-box">
-          <h2>
-            Umidade
-            <i class="fas fa-tint"></i>
-          </h2>
-          <p id="humidity">{{ "%.f"|format(humidity) }}%</p>
-          <p id="humidity-status">{{ humidity_status }}</p>
+        <div class="condition-card">
+          <i class="fas fa-cloud-showers-heavy" style="color: #ffd700"></i>
+          <h3>Chuva</h3>
+          <p>{{ '%.3f'|format(rain_level) }} mm</p>
+          <p class="legend">{{ rain_status }}</p>
         </div>
-        <div class="metric-box" id="rain-level-box">
-          <h2>
-            Nível de Chuva
-            <i class="fas fa-cloud-showers-heavy"></i>
-          </h2>
-          <p id="rain-level">{{ "%.3f"|format(rain_level) }} mm</p>
-          <p id="rain-status">{{ rain_status }}</p>
+        <div class="condition-card">
+          <i class="fas fa-wind" style="color: #ffd700"></i>
+          <h3>Vento</h3>
+          <p>{{ '%.f'|format(wind_speed_kmh) }} km/h - {{ wind_direction }}</p>
+          <p class="legend">{{ wind_speed_status }}</p>
         </div>
-        <div class="metric-box" id="uv-box">
-          <h2>Radiação UV<i class="fas fa-sun"></i></h2>
-          <p id="uv-index">{{ "%.f"|format(uv_index) }}</p>
-          <p id="uv-status">{{ uv_status }}</p>
-        </div>
-        <div class="metric-box" id="wind-direction-box">
-          <h2>
-            Direção e Velocidade do Vento
-            <i class="fas fa-wind"></i>
-          </h2>
-          <div
-            style="display: flex; align-items: center; justify-content: center"
-          >
-            <div style="flex: 1; text-align: center">
-              <div class="arrow {{ wind_icon_class }}"></div>
-              <p id="wind-direction">{{ wind_direction }}</p>
-            </div>
-            <div
-              style="
-                width: 2px;
-                height: 50px;
-                background-color: #fff;
-                margin: 0 20px;
-              "
-            ></div>
-            <div style="flex: 1; text-align: center">
-              <p id="wind-speed">{{ "%.2f"|format(wind_speed_kmh) }} km/h</p>
-              <p id="wind-speed-status">{{ wind_speed_status }}</p>
-            </div>
-          </div>
+        <div class="condition-card">
+          <i class="fas fa-sun" style="color: #ffd700"></i>
+          <h3>Radiação UV</h3>
+          <p>{{ '%.f'|format(uv_index) }}</p>
+          <p class="legend">{{ uv_status }}</p>
         </div>
       </div>
 
-      <button onclick="window.location.href='/temperatura'">
-        Conferir temperatura atual
-      </button>
-      <button onclick="window.location.href='/dados'">
-        Conferir gráficos de clima
-      </button>
-      <!-- Rodapé -->
+      <!-- RODAPÉ -->
       <div class="footer">
         <p>
-          Desenvolvido por alunos da
-          <a>PUC</a>. Todos os direitos reservados.
+          Desenvolvido por <a href="/about" style="color: #ffd700">alunos</a> da
+          <strong>PUCCAMP</strong>. Todos os direitos reservados.
         </p>
       </div>
     </div>
+
+    <!-- SCRIPT PARA TOGGLE DE TEMPERATURA E SIDEBAR -->
     <script>
-      // Função para atualizar os dados
-      function updateData() {
-        fetch("/")
-          .then((response) => response.json())
-          .then((data) => {
-            document.getElementById("temperature").textContent =
-              data.temperature + "°C";
-            document.getElementById("temperature-status").textContent =
-              data.temperature_status;
-            document.getElementById("humidity").textContent =
-              data.humidity + "%";
-            document.getElementById("humidity-status").textContent =
-              data.humidity_status;
-            document.getElementById("rain-level").textContent = data.rain_level;
-            document.getElementById("rain-status").textContent =
-              data.rain_status;
-            document.getElementById("uv-index").textContent = data.uv_index;
-            document.getElementById("uv-status").textContent = data.uv_status;
-            document.getElementById("wind-direction").textContent =
-              data.wind_direction;
-            document.getElementById("wind-speed").textContent =
-              data.wind_speed_kmh + " km/h";
-            document.getElementById("wind-speed-status").textContent =
-              data.wind_speed_status;
-
-            changeIcons(data);
-          })
-          .catch((error) => console.error("Error fetching data:", error));
-      }
-
       function toggleTemperature() {
         const toggle = document.getElementById("toggleTemp");
-        const tempElements = document.querySelectorAll(".temperature");
-
-        tempElements.forEach((element) => {
-          let temp = parseFloat(element.getAttribute("data-temp"));
-
-          if (toggle.checked) {
-            // Convert to Fahrenheit
-            temp = (temp * 9) / 5 + 32;
-            element.textContent = temp.toFixed(1) + " °F";
-          } else {
-            // Convert to Celsius
-            temp = ((temp - 32) * 5) / 9;
-            element.textContent = Math.round(temp) + " °C";
-          }
-
-          // Atualizar o atributo data-temp para o novo valor
-          element.setAttribute("data-temp", temp.toFixed(1));
+        document.querySelectorAll(".temperature").forEach((el) => {
+          let val = parseFloat(el.getAttribute("data-temp")) || 0;
+          let conv = toggle.checked ? (val * 9) / 5 + 32 : ((val - 32) * 5) / 9;
+          el.textContent = toggle.checked
+            ? conv.toFixed(1) + "°F"
+            : Math.round(conv) + "°C";
+          el.setAttribute("data-temp", conv.toFixed(1));
         });
       }
-
-      // Função para alterar os ícones conforme os dados
-      function changeIcons(data) {
-        // Alterando ícone de Temperatura
-        const temperatureBox = document.getElementById("temperature-box");
-        const temperatureIcon = temperatureBox.querySelector("i");
-        if (data.temperature > 30) {
-          temperatureIcon.classList.remove("fa-thermometer-half");
-          temperatureIcon.classList.add("fa-sun");
-        } else {
-          temperatureIcon.classList.remove("fa-sun");
-          temperatureIcon.classList.add("fa-thermometer-half");
-        }
-
-        // Alterando ícone de Humidade
-        const humidityBox = document.getElementById("humidity-box");
-        const humidityIcon = humidityBox.querySelector("i");
-        if (data.humidity < 40) {
-          humidityIcon.classList.remove("fa-tint");
-          humidityIcon.classList.add("fa-tint-slash");
-        } else {
-          humidityIcon.classList.remove("fa-tint-slash");
-          humidityIcon.classList.add("fa-tint");
-        }
-
-        // Alterando ícone de Chuva
-        const rainBox = document.getElementById("rain-level-box");
-        const rainIcon = rainBox.querySelector("i");
-        if (data.rain_level > 0.2) {
-          rainIcon.classList.remove("fa-cloud");
-          rainIcon.classList.add("fa-cloud-showers-heavy");
-        } else {
-          rainIcon.classList.remove("fa-cloud-showers-heavy");
-          rainIcon.classList.add("fa-cloud");
-        }
-
-        // Alterando ícone de Radiação UV
-        const uvBox = document.getElementById("uv-box");
-        const uvIcon = uvBox.querySelector("i");
-        if (data.uv_index > 7) {
-          uvIcon.classList.remove("fa-sun");
-          uvIcon.classList.add("fa-sun-cloud");
-        } else {
-          uvIcon.classList.remove("fa-sun-cloud");
-          uvIcon.classList.add("fa-sun");
-        }
-
-        // Alterando ícone de Vento
-        const windBox = document.getElementById("wind-direction-box");
-        const windIcon = windBox.querySelector("i");
-        windIcon.classList.remove("fa-wind");
-        windIcon.classList.add("fa-wind"); // Se necessário, pode adicionar mais lógica para vento forte
+      function toggleSidebarVisibility() {
+        const sb = document.getElementById("sidebar");
+        const mc = document.getElementById("mainContent");
+        sb.classList.toggle("hide");
+        mc.style.marginLeft = sb.classList.contains("hide") ? "0" : "80px";
       }
-      updateData();
     </script>
   </body>
 </html>
