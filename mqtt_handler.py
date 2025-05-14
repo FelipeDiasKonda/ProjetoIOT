@@ -121,18 +121,16 @@ def on_disconnect(client, userdata, rc):
 
 def setup_mqtt():
     """Configurar e iniciar o cliente MQTT."""
-    client = mqtt.Client(protocol=mqtt.MQTTv5, transport="tcp")
+    client = mqtt.Client(protocol=mqtt.MQTTv311, transport="tcp")
     client.user_data_set({'subscribed': False})
     client.on_connect = on_connect
     client.on_message = on_message
     client.on_disconnect = on_disconnect
     
-    broker = os.getenv("MQTT_BROKER", "192.168.1.110")
-    
     while True:
         try:
             print("[MQTT] Tentando conectar ao broker MQTT...")
-            client.connect(broker, 1883, keepalive=60)
+            client.connect("192.168.1.110", 1883, keepalive=60)
             print("[MQTT] Conectado ao broker com sucesso.")
             return client
         except Exception as e:
