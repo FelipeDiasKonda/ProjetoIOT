@@ -26,8 +26,6 @@ services:
     environment:
       - MQTT_BROKER=BrokerEstacao
     command: python mqtt_handler.py  # Ou python mqtt_setup.py, conforme o nome do seu script
-    depends_on:
-      - mysql
   
   # Container do script de monitoramento
   mqtt_monitor:
@@ -39,7 +37,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # Permite controlar o Docker de dentro do container
     depends_on:
-      - mysql
       - mqtt_handler
 
   mysql:
